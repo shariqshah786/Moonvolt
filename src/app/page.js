@@ -1,65 +1,106 @@
-import Image from "next/image";
+"use client";
+import React, { useState, useEffect, useCallback } from 'react';
+import { seedDB } from '../lib/seed';
+import { LoginScreen } from '../components/auth/LoginScreen';
+import { Shell } from '../components/layout/Shell';
+import { uid } from '../lib/helpers';
+import { rootVars, globalCss } from '../lib/theme';
 
-export default function Home() {
+
+export default function App() {
+  const [db, setDb] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState('dark');
+  const [session, setSession] = useState(null); // { role: 'admin'|'distributor', distributorId? , name }
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [toast, setToast] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    let settled = false;
+    const finish = (data) => {
+      if (settled) return;
+      settled = true;
+      setDb(data);
+      setLoading(false);
+    };
+
+    // Safety net: never let a hung or unavailable storage call block the app.
+    // If storage doesn't respond within 4s, fall back to a fresh in-memory seed.
+    const timeout = setTimeout(() => {
+      if (!settled) finish(seedDB());
+    }, 4000);
+
+    (async () => {
+      try {
+        if (!window.storage || typeof window.storage.get !== 'function') {
+          throw new Error('storage unavailable');
+        }
+        const res = await window.storage.get('vdms', true);
+        if (res && res.value) {
+          finish(JSON.parse(res.value));
+        } else {
+          const seeded = seedDB();
+          finish(seeded);
+          try { await window.storage.set('vdms', JSON.stringify(seeded), true); } catch (_) {}
+        }
+      } catch (e) {
+        const seeded = seedDB();
+        finish(seeded);
+        try { await window.storage.set('vdms', JSON.stringify(seeded), true); } catch (_) {}
+      } finally {
+        clearTimeout(timeout);
+      }
+    })();
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  const persist = useCallback(async (newDb) => {
+    setDb(newDb);
+    try { await window.storage.set('vdms', JSON.stringify(newDb), true); } catch (_) {}
+  }, []);
+
+  const showToast = useCallback((msg, kind = 'success') => {
+    setToast({ msg, kind });
+    setTimeout(() => setToast(null), 3200);
+  }, []);
+
+  const addAudit = useCallback((dbState, user, action) => {
+    dbState.auditLog = [{ id: uid('LOG'), timestamp: new Date().toISOString(), user, action }, ...dbState.auditLog];
+    return dbState;
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ ...rootVars(theme), minHeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', fontFamily: 'var(--font-body)' }}>
+        <style>{globalCss}</style>
+        <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>Loading Vehicle Distribution System…</div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <LoginScreen
+        theme={theme} setTheme={setTheme} db={db}
+        onLogin={(sess) => { setSession(sess); setActiveTab('dashboard'); }}
+      />
+    );
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div style={rootVars(theme)}>
+      <style>{globalCss}</style>
+      <Shell
+        theme={theme} setTheme={setTheme}
+        session={session} setSession={setSession}
+        db={db} persist={persist} addAudit={addAudit}
+        activeTab={activeTab} setActiveTab={setActiveTab}
+        showToast={showToast} toast={toast}
+        sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}
+      />
     </div>
   );
 }
+
