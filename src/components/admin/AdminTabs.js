@@ -67,7 +67,7 @@ export function AdminDashboard({ db }) {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 14 }}>
+      <div className="admin-charts-grid">
         <div className="card">
           <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Stock by Model</div>
           <ResponsiveContainer width="100%" height={260}>
@@ -129,7 +129,7 @@ export function AdminDashboard({ db }) {
         </div>
       </div>
 
-      <div style={grid2}>
+      <div className="grid-2">
         <div className="card">
           <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Recent Supply Transactions</div>
           {recentTx.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>No transactions yet.</div>}
@@ -214,18 +214,18 @@ export function InventoryTab({ db, persist, addAudit, showToast }) {
 
       <div className="card scrollx">
         <table>
-          <thead><tr><th>Vehicle ID</th><th>Category</th><th>Model</th><th>Chassis No.</th><th>Motor No.</th><th>Battery</th><th>Charger</th><th>Mfg Date</th><th>Status</th><th>Distributor</th></tr></thead>
+          <thead><tr><th>Vehicle ID</th><th>Category</th><th>Model</th><th className="hide-mobile">Chassis No.</th><th className="hide-mobile">Motor No.</th><th className="hide-mobile">Battery</th><th className="hide-mobile">Charger</th><th className="hide-mobile">Mfg Date</th><th>Status</th><th>Distributor</th></tr></thead>
           <tbody>
             {filtered.map(v => (
               <tr key={v.id}>
                 <td style={{ fontFamily: 'var(--font-mono)' }}>{v.id}</td>
                 <td>{v.category}</td>
                 <td>{v.model}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.chassisNumber}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.motorNumber}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.batterySerial}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.chargerSerial}</td>
-                <td>{fmtDate(v.manufacturingDate)}</td>
+                <td className="hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.chassisNumber}</td>
+                <td className="hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.motorNumber}</td>
+                <td className="hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.batterySerial}</td>
+                <td className="hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.chargerSerial}</td>
+                <td className="hide-mobile">{fmtDate(v.manufacturingDate)}</td>
                 <td><StatusBadge status={v.status} /></td>
                 <td>{v.distributorId ? (db.distributors.find(d => d.id === v.distributorId)?.shopName || v.distributorId) : '—'}</td>
               </tr>
@@ -261,7 +261,7 @@ export function AddVehicleModal({ onClose, onSave }) {
   return (
     <Modal title="Add New Vehicle" onClose={onClose}>
       <div>
-        <div style={grid2}>
+        <div className="grid-2">
           <div><label>Vehicle Category</label>
             <select value={cat} onChange={e => { setCat(e.target.value); setModel(CATEGORIES[e.target.value][0]); }}>
               {Object.keys(CATEGORIES).map(c => <option key={c}>{c}</option>)}
@@ -273,15 +273,15 @@ export function AddVehicleModal({ onClose, onSave }) {
             </select>
           </div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Chassis Number</label><input value={form.chassisNumber} onChange={e => set('chassisNumber', e.target.value)} /></div>
           <div><label>Motor Number</label><input value={form.motorNumber} onChange={e => set('motorNumber', e.target.value)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Battery Serial Number</label><input value={form.batterySerial} onChange={e => set('batterySerial', e.target.value)} /></div>
           <div><label>Charger Serial Number</label><input value={form.chargerSerial} onChange={e => set('chargerSerial', e.target.value)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Manufacturing Date</label><input type="date" value={form.manufacturingDate} onChange={e => set('manufacturingDate', e.target.value)} /></div>
           <div><label>Purchase Date</label><input type="date" value={form.purchaseDate} onChange={e => set('purchaseDate', e.target.value)} /></div>
         </div>
@@ -344,17 +344,17 @@ export function DistributorsTab({ db, persist, addAudit, showToast }) {
       </div>
       <div className="card scrollx">
         <table>
-          <thead><tr><th>Shop Name</th><th>Owner</th><th>Mobile</th><th>Email</th><th>GST</th><th>Stock</th><th>Sold</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Shop Name</th><th className="hide-mobile">Owner</th><th>Mobile</th><th className="hide-mobile">Email</th><th className="hide-mobile">GST</th><th className="hide-mobile">Stock</th><th className="hide-mobile">Sold</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>
             {db.distributors.map(d => (
               <tr key={d.id}>
                 <td>{d.shopName}</td>
-                <td>{d.ownerName}</td>
+                <td className="hide-mobile">{d.ownerName}</td>
                 <td>{d.mobile}</td>
-                <td>{d.email}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{d.gst}</td>
-                <td>{stockOf(d.id)}</td>
-                <td>{soldOf(d.id)}</td>
+                <td className="hide-mobile">{d.email}</td>
+                <td className="hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{d.gst}</td>
+                <td className="hide-mobile">{stockOf(d.id)}</td>
+                <td className="hide-mobile">{soldOf(d.id)}</td>
                 <td><span className="badge" style={{ background: d.status === 'active' ? '#33D69F22' : '#FF5C5C22', color: d.status === 'active' ? 'var(--success)' : 'var(--danger)' }}>{d.status}</span></td>
                 <td>
                   <div style={{ display: 'flex', gap: 6 }}>
@@ -401,16 +401,16 @@ export function DistributorModal({ mode, data, onClose, onSave }) {
   return (
     <Modal title={mode === 'add' ? 'Add Distributor' : 'Edit Distributor'} onClose={onClose}>
       <div>
-        <div style={grid2}>
+        <div className="grid-2">
           <div><label>Shop Name</label><input value={form.shopName} onChange={e => set('shopName', e.target.value)} /></div>
           <div><label>Owner Name</label><input value={form.ownerName} onChange={e => set('ownerName', e.target.value)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Mobile Number</label><input value={form.mobile} onChange={e => set('mobile', e.target.value)} /></div>
           <div><label>GST Number</label><input value={form.gst} onChange={e => set('gst', e.target.value)} /></div>
         </div>
         <div style={{ marginTop: 10 }}><label>Address</label><input value={form.address} onChange={e => set('address', e.target.value)} /></div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Email</label><input type="email" value={form.email} onChange={e => set('email', e.target.value)} /></div>
           <div><label>Username</label><input value={form.username} onChange={e => set('username', e.target.value)} /></div>
         </div>
@@ -474,7 +474,7 @@ export function SupplyTab({ db, persist, addAudit, showToast }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div className="card">
-        <div style={grid3}>
+        <div className="grid-3">
           <div>
             <label>Select Distributor</label>
             <select value={distributorId} onChange={e => setDistributorId(e.target.value)}>
@@ -485,7 +485,7 @@ export function SupplyTab({ db, persist, addAudit, showToast }) {
           <div><label>Date</label><input type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
           <div><label>Invoice Number</label><input value={invoice} onChange={e => setInvoice(e.target.value)} /></div>
         </div>
-        <div style={{ ...grid3, marginTop: 10 }}>
+        <div className="grid-3" style={{ marginTop: 10 }}>
           <div><label>Filter by Category</label>
             <select value={catF} onChange={e => { setCatF(e.target.value); setModelF('All'); }}>
               <option>All</option>{Object.keys(CATEGORIES).map(c => <option key={c}>{c}</option>)}
@@ -506,7 +506,7 @@ export function SupplyTab({ db, persist, addAudit, showToast }) {
 
       <div className="card">
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Payment Terms</div>
-        <div style={grid3}>
+        <div className="grid-3">
           <div><label>Payment Type</label>
             <select value={paymentType} onChange={e => setPaymentType(e.target.value)}>
               <option>Cash</option><option>Credit</option>
@@ -520,7 +520,7 @@ export function SupplyTab({ db, persist, addAudit, showToast }) {
           ) : <div />}
         </div>
         {paymentType === 'Credit' && (
-          <div style={{ ...grid3, marginTop: 10 }}>
+          <div className="grid-3" style={{ marginTop: 10 }}>
             <div><label>Due Date</label><input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} /></div>
             <div style={{ gridColumn: 'span 2', fontSize: 12, color: 'var(--text-muted)', alignSelf: 'end', paddingBottom: 9 }}>
               Payable amount: <b style={{ color: 'var(--text)' }}>{inr((Number(totalAmount) || suggestedAmount) * (1 + (Number(interestRate) || 0) / 100))}</b> (principal + {interestRate || 0}% interest), due {fmtDate(dueDate)}.
@@ -535,15 +535,15 @@ export function SupplyTab({ db, persist, addAudit, showToast }) {
         </div>
         <div className="scrollx" style={{ maxHeight: 320, overflowY: 'auto' }}>
           <table>
-            <thead><tr><th></th><th>Vehicle ID</th><th>Category</th><th>Model</th><th>Chassis No.</th><th>Mfg Date</th></tr></thead>
+            <thead><tr><th></th><th>Vehicle ID</th><th className="hide-mobile">Category</th><th>Model</th><th className="hide-mobile">Chassis No.</th><th className="hide-mobile">Mfg Date</th></tr></thead>
             <tbody>
               {available.map(v => (
                 <tr key={v.id} onClick={() => toggleSel(v.id)} style={{ cursor: 'pointer' }}>
                   <td><input type="checkbox" checked={selected.includes(v.id)} onChange={() => toggleSel(v.id)} style={{ width: 16 }} /></td>
                   <td style={{ fontFamily: 'var(--font-mono)' }}>{v.id}</td>
-                  <td>{v.category}</td><td>{v.model}</td>
-                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.chassisNumber}</td>
-                  <td>{fmtDate(v.manufacturingDate)}</td>
+                  <td className="hide-mobile">{v.category}</td><td>{v.model}</td>
+                  <td className="hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.chassisNumber}</td>
+                  <td className="hide-mobile">{fmtDate(v.manufacturingDate)}</td>
                 </tr>
               ))}
               {available.length === 0 && <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No in-stock vehicles match this filter.</td></tr>}
@@ -610,16 +610,16 @@ export function WarrantyTab({ db, persist, addAudit, showToast }) {
 
       <div className="card scrollx">
         <table>
-          <thead><tr><th>Vehicle ID</th><th>Customer</th><th>Mobile</th><th>Battery Warranty</th><th>Battery Status</th><th>Charger Warranty</th><th>Charger Status</th><th></th></tr></thead>
+          <thead><tr><th>Vehicle ID</th><th>Customer</th><th className="hide-mobile">Mobile</th><th className="hide-mobile">Battery Warranty</th><th>Battery Status</th><th className="hide-mobile">Charger Warranty</th><th>Charger Status</th><th></th></tr></thead>
           <tbody>
             {rows.map(({ vehicle, sale }) => (
               <tr key={vehicle.id}>
                 <td style={{ fontFamily: 'var(--font-mono)' }}>{vehicle.id}</td>
                 <td>{sale?.customer?.fullName || '—'}</td>
-                <td>{sale?.customer?.mobile || '—'}</td>
-                <td>{fmtDate(vehicle.batteryWarranty.start)} → {fmtDate(vehicle.batteryWarranty.end)}</td>
+                <td className="hide-mobile">{sale?.customer?.mobile || '—'}</td>
+                <td className="hide-mobile">{fmtDate(vehicle.batteryWarranty.start)} → {fmtDate(vehicle.batteryWarranty.end)}</td>
                 <td><span className="badge" style={{ background: computeStatus(vehicle.batteryWarranty.end) === 'Active' ? '#33D69F22' : '#FF5C5C22', color: computeStatus(vehicle.batteryWarranty.end) === 'Active' ? 'var(--success)' : 'var(--danger)' }}>{computeStatus(vehicle.batteryWarranty.end)}</span></td>
-                <td>{fmtDate(vehicle.chargerWarranty.start)} → {fmtDate(vehicle.chargerWarranty.end)}</td>
+                <td className="hide-mobile">{fmtDate(vehicle.chargerWarranty.start)} → {fmtDate(vehicle.chargerWarranty.end)}</td>
                 <td><span className="badge" style={{ background: computeStatus(vehicle.chargerWarranty.end) === 'Active' ? '#33D69F22' : '#FF5C5C22', color: computeStatus(vehicle.chargerWarranty.end) === 'Active' ? 'var(--success)' : 'var(--danger)' }}>{computeStatus(vehicle.chargerWarranty.end)}</span></td>
                 <td><button className="btn btn-sm" onClick={() => setEditing(vehicle)}><Edit2 size={12} /> Edit / Extend</button></td>
               </tr>
@@ -644,12 +644,12 @@ export function WarrantyEditForm({ vehicle, onSave, onClose }) {
   return (
     <div>
       <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Battery Warranty</div>
-      <div style={grid2}>
+      <div className="grid-2">
         <div><label>Start Date</label><input type="date" value={battery.start} onChange={e => setBattery(b => ({ ...b, start: e.target.value }))} /></div>
         <div><label>End Date</label><input type="date" value={battery.end} onChange={e => setBattery(b => ({ ...b, end: e.target.value }))} /></div>
       </div>
       <div style={{ fontWeight: 700, fontSize: 13, margin: '16px 0 8px' }}>Charger Warranty</div>
-      <div style={grid2}>
+      <div className="grid-2">
         <div><label>Start Date</label><input type="date" value={charger.start} onChange={e => setCharger(c => ({ ...c, start: e.target.value }))} /></div>
         <div><label>End Date</label><input type="date" value={charger.end} onChange={e => setCharger(c => ({ ...c, end: e.target.value }))} /></div>
       </div>
@@ -726,7 +726,7 @@ export function ReportsTab({ db }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div className="card">
-        <div style={grid3}>
+        <div className="grid-3">
           <div><label>Report Type</label>
             <select value={reportType} onChange={e => setReportType(e.target.value)}>{reportTypes.map(r => <option key={r}>{r}</option>)}</select>
           </div>
@@ -741,7 +741,7 @@ export function ReportsTab({ db }) {
             </select>
           </div>
         </div>
-        <div style={{ ...grid3, marginTop: 10 }}>
+        <div className="grid-3" style={{ marginTop: 10 }}>
           <div><label>Model</label>
             <select value={modelFilter} onChange={e => setModelFilter(e.target.value)}>
               <option>All</option>{(catFilter === 'All' ? ALL_MODELS.map(m => m.model) : CATEGORIES[catFilter]).map(m => <option key={m}>{m}</option>)}

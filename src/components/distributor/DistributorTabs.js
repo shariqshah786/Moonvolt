@@ -65,14 +65,14 @@ export function MyInventoryTab({ db, session }) {
       </select>
       <div className="card scrollx">
         <table>
-          <thead><tr><th>Vehicle ID</th><th>Category</th><th>Model</th><th>Chassis No.</th><th>Battery</th><th>Charger</th><th>Status</th></tr></thead>
+          <thead><tr><th>Vehicle ID</th><th>Category</th><th>Model</th><th className="hide-mobile">Chassis No.</th><th className="hide-mobile">Battery</th><th className="hide-mobile">Charger</th><th>Status</th></tr></thead>
           <tbody>
             {myVehicles.map(v => (
               <tr key={v.id}>
                 <td style={{ fontFamily: 'var(--font-mono)' }}>{v.id}</td><td>{v.category}</td><td>{v.model}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.chassisNumber}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.batterySerial}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.chargerSerial}</td>
+                <td className="hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.chassisNumber}</td>
+                <td className="hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.batterySerial}</td>
+                <td className="hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{v.chargerSerial}</td>
                 <td><StatusBadge status={v.status} /></td>
               </tr>
             ))}
@@ -137,7 +137,7 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
           {availableVehicles.map(v => <option key={v.id} value={v.id}>{v.id} — {v.category} {v.model}</option>)}
         </select>
         {selectedVehicle && (
-          <div style={{ ...grid3, marginTop: 12, fontSize: 12, color: 'var(--text-muted)' }}>
+          <div className="grid-3" style={{ marginTop: 12, fontSize: 12, color: 'var(--text-muted)' }}>
             <div>Chassis: <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text)' }}>{selectedVehicle.chassisNumber}</span></div>
             <div>Motor: <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text)' }}>{selectedVehicle.motorNumber}</span></div>
             <div>Battery: <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text)' }}>{selectedVehicle.batterySerial}</span></div>
@@ -147,21 +147,21 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
 
       <div className="card">
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Customer Details</div>
-        <div style={grid2}>
+        <div className="grid-2">
           <div><label>Full Name</label><input value={customer.fullName} onChange={e => setC('fullName', e.target.value)} /></div>
           <div><label>Father&apos;s Name</label><input value={customer.fatherName} onChange={e => setC('fatherName', e.target.value)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Mobile Number</label><input value={customer.mobile} onChange={e => setC('mobile', e.target.value)} /></div>
           <div><label>Alternate Mobile</label><input value={customer.altMobile} onChange={e => setC('altMobile', e.target.value)} /></div>
         </div>
         <div style={{ marginTop: 10 }}><label>Address</label><input value={customer.address} onChange={e => setC('address', e.target.value)} /></div>
-        <div style={{ ...grid3, marginTop: 10 }}>
+        <div className="grid-3" style={{ marginTop: 10 }}>
           <div><label>City</label><input value={customer.city} onChange={e => setC('city', e.target.value)} /></div>
           <div><label>State</label><input value={customer.state} onChange={e => setC('state', e.target.value)} /></div>
           <div><label>PIN Code</label><input value={customer.pin} onChange={e => setC('pin', e.target.value)} /></div>
         </div>
-        <div style={{ ...grid3, marginTop: 10 }}>
+        <div className="grid-3" style={{ marginTop: 10 }}>
           <div><label>Aadhaar Number</label><input value={customer.aadhaar} onChange={e => setC('aadhaar', e.target.value)} /></div>
           <div><label>PAN Number (optional)</label><input value={customer.pan} onChange={e => setC('pan', e.target.value)} /></div>
           <div><label>Driving License (optional)</label><input value={customer.dl} onChange={e => setC('dl', e.target.value)} /></div>
@@ -171,12 +171,12 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
       <div className="card">
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>KYC Documents</div>
         <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 10 }}>File contents are not stored in this demo — only the filename is recorded.</div>
-        <div style={grid3}>
+        <div className="grid-3">
           <div><label>Aadhaar</label><input type="file" onChange={e => setKycFile('aadhaar', e)} /></div>
           <div><label>PAN</label><input type="file" onChange={e => setKycFile('pan', e)} /></div>
           <div><label>Photograph</label><input type="file" onChange={e => setKycFile('photo', e)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Address Proof</label><input type="file" onChange={e => setKycFile('addressProof', e)} /></div>
           <div><label>Other KYC Document</label><input type="file" onChange={e => setKycFile('other', e)} /></div>
         </div>
@@ -184,11 +184,11 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
 
       <div className="card">
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Sale Details</div>
-        <div style={grid2}>
+        <div className="grid-2">
           <div><label>Selling Price (₹)</label><input type="number" value={sellingPrice} onChange={e => setSellingPrice(e.target.value)} /></div>
           <div><label>Discount (₹)</label><input type="number" value={discount} onChange={e => setDiscount(e.target.value)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Invoice Number</label><input value={invoice} onChange={e => setInvoice(e.target.value)} /></div>
           <div><label>Date of Sale</label><input type="date" value={saleDate} onChange={e => setSaleDate(e.target.value)} /></div>
         </div>
@@ -216,14 +216,14 @@ export function SalesHistoryTab({ db, session }) {
       </div>
       <div className="card scrollx">
         <table>
-          <thead><tr><th>Invoice</th><th>Vehicle ID</th><th>Customer</th><th>Mobile</th><th>Price</th><th>Discount</th><th>Date</th></tr></thead>
+          <thead><tr><th>Invoice</th><th>Vehicle ID</th><th>Customer</th><th className="hide-mobile">Mobile</th><th>Price</th><th className="hide-mobile">Discount</th><th>Date</th></tr></thead>
           <tbody>
             {mySales.map(s => (
               <tr key={s.id}>
                 <td style={{ fontFamily: 'var(--font-mono)' }}>{s.invoiceNumber}</td>
                 <td style={{ fontFamily: 'var(--font-mono)' }}>{s.vehicleId}</td>
-                <td>{s.customer.fullName}</td><td>{s.customer.mobile}</td>
-                <td>{inr(s.sellingPrice)}</td><td>{inr(s.discount)}</td><td>{fmtDate(s.saleDate)}</td>
+                <td>{s.customer.fullName}</td><td className="hide-mobile">{s.customer.mobile}</td>
+                <td>{inr(s.sellingPrice)}</td><td className="hide-mobile">{inr(s.discount)}</td><td>{fmtDate(s.saleDate)}</td>
               </tr>
             ))}
             {mySales.length === 0 && <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No sales recorded yet.</td></tr>}
@@ -259,7 +259,7 @@ export function ClaimsTab({ db, persist, addAudit, showToast, session }) {
       <div className="card">
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Raise a Warranty Claim</div>
         <div>
-          <div style={grid2}>
+          <div className="grid-2">
             <div><label>Vehicle</label>
               <select value={vehicleId} onChange={e => setVehicleId(e.target.value)}>
                 <option value="">Choose vehicle…</option>

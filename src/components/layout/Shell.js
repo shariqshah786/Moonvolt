@@ -37,7 +37,7 @@ export function Shell({ theme, setTheme, session, setSession, db, persist, addAu
       {/* Sidebar */}
       <div style={{
         width: 236, flexShrink: 0, borderRight: '1px solid var(--border)', background: 'var(--surface)',
-        position: sidebarOpen ? 'fixed' : 'relative', zIndex: 50, height: '100vh', display: sidebarOpen ? 'block' : undefined,
+        position: sidebarOpen ? 'fixed' : 'relative', left: sidebarOpen ? 0 : undefined, top: sidebarOpen ? 0 : undefined, zIndex: 50, height: '100vh', display: sidebarOpen ? 'block' : undefined,
       }} className={sidebarOpen ? '' : 'hide-mobile-sidebar'}>
         <div style={{ padding: '20px 18px', display: 'flex', alignItems: 'center', gap: 9, borderBottom: '1px solid var(--border)' }}>
           <span style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg, var(--accent1), var(--accent2))', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -150,7 +150,7 @@ export function TopBar({ theme, setTheme, session, tabs, activeTab, notification
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface)', position: 'sticky', top: 0, zIndex: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <button className="btn btn-sm hide-mobile-none" onClick={() => setSidebarOpen(s => !s)} style={{ display: 'none' }}><Menu size={15} /></button>
+        <button className="btn btn-sm mobile-menu-btn" onClick={() => setSidebarOpen(s => !s)}><Menu size={15} /></button>
         <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 17 }}>{label}</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>

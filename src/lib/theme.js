@@ -43,5 +43,15 @@ tr:hover td { background: var(--surface-hover); }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
 .badge { display:inline-flex; align-items:center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
 .scrollx { overflow-x: auto; }
-@media (max-width: 860px) { .hide-mobile { display: none !important; } }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.admin-charts-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+.mobile-menu-btn { display: none !important; }
+@media (max-width: 860px) {
+  .hide-mobile { display: none !important; }
+  .hide-mobile-sidebar { display: none !important; }
+  .mobile-menu-btn { display: inline-flex !important; }
+  .grid-2, .grid-3, .admin-charts-grid { grid-template-columns: 1fr !important; }
+}
 `;
+
