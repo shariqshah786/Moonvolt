@@ -16,5 +16,6 @@ export const CHARGER_WARRANTY_MONTHS = 12;
 export const STORAGE_KEY = 'vdms_core_db_v1';
 export const PAYMENT_MODES = ['Cash', 'Bank Transfer', 'UPI', 'Cheque'];
 export const ANNOUNCEMENT_TYPES = ['New Update', 'Upcoming Product'];
+export const SMS_TYPES = ['Delivery Confirmation', 'Payment Reminder'];
 
 export const ADMIN_CREDENTIALS = { username: 'admin', password: 'admin123' };

@@ -3,8 +3,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { seedDB } from '../lib/seed';
 import { LoginScreen } from '../components/auth/LoginScreen';
 import { Shell } from '../components/layout/Shell';
-import { uid } from '../lib/helpers';
 import { rootVars, globalCss } from '../lib/theme';
+import { uid } from '../lib/helpers';
+
 
 
 export default function App() {
@@ -103,4 +104,3 @@ export default function App() {
     </div>
   );
 }
-

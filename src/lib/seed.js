@@ -122,5 +122,5 @@ export function seedDB() {
 
   pushAudit('Super Admin', 'System initialized with seed inventory');
 
-  return { vehicles, distributors, transactions, sales, claims: [], payments, announcements, auditLog, seq };
+  return { vehicles, distributors, transactions, sales, claims: [], payments, announcements, scheduledSms: [], auditLog, seq };
 }

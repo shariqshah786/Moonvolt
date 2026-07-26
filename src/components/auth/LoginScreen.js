@@ -1,7 +1,14 @@
 "use client";
 import React, { useState } from 'react';
-import { Sun, Moon, Car, EyeOff, Eye } from 'lucide-react';
-import { ADMIN_CREDENTIALS } from '../../lib/constants';
+import {
+  LayoutDashboard, Package, Users, Truck, ShieldCheck, FileText, Search,
+  Bell, Sun, Moon, LogOut, Plus, Edit2, Trash2, X, Check, AlertTriangle,
+  ChevronDown, Download, Menu, Car, TrendingUp, ClipboardList, UserCircle2,
+  ScrollText, Filter, Eye, EyeOff, RefreshCw, IndianRupee, MapPin, Megaphone,
+  Landmark, Sparkles, Wallet, BadgeCheck, HandCoins, CalendarClock, Percent,
+  MessageSquare, History, ExternalLink, FileCheck2, BatteryFull, Paperclip, Wrench
+} from 'lucide-react';
+import { CATEGORIES, ALL_MODELS, STATUSES, STATUS_COLORS, LOW_STOCK_THRESHOLD, BATTERY_WARRANTY_MONTHS, CHARGER_WARRANTY_MONTHS, STORAGE_KEY, PAYMENT_MODES, ANNOUNCEMENT_TYPES, SMS_TYPES, ADMIN_CREDENTIALS } from '../../lib/constants';
 import { rootVars, globalCss } from '../../lib/theme';
 
 
@@ -18,8 +25,8 @@ export function LoginScreen({ theme, setTheme, db, onLogin }) {
   const handleLogin = () => {
     setError('');
     if (role === 'admin') {
-      if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-        onLogin({ role: 'admin', name: 'Super Admin' });
+      if (username === (db?.admin?.username || ADMIN_CREDENTIALS.username) && password === (db?.admin?.password || ADMIN_CREDENTIALS.password)) {
+        onLogin({ role: 'admin', name: db?.admin?.name || 'Super Admin' });
       } else {
         setError('Invalid admin credentials.');
       }
