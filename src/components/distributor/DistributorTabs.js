@@ -154,21 +154,21 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
 
       <div className="card">
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Customer Details</div>
-        <div style={grid2}>
+        <div className="grid-2">
           <div><label>Full Name</label><input value={customer.fullName} onChange={e => setC('fullName', e.target.value)} /></div>
           <div><label>Father's Name</label><input value={customer.fatherName} onChange={e => setC('fatherName', e.target.value)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Mobile Number</label><input value={customer.mobile} onChange={e => setC('mobile', e.target.value)} /></div>
           <div><label>Alternate Mobile</label><input value={customer.altMobile} onChange={e => setC('altMobile', e.target.value)} /></div>
         </div>
         <div style={{ marginTop: 10 }}><label>Address</label><input value={customer.address} onChange={e => setC('address', e.target.value)} /></div>
-        <div style={{ ...grid3, marginTop: 10 }}>
+        <div className="grid-3" style={{ marginTop: 10 }}>
           <div><label>City</label><input value={customer.city} onChange={e => setC('city', e.target.value)} /></div>
           <div><label>State</label><input value={customer.state} onChange={e => setC('state', e.target.value)} /></div>
           <div><label>PIN Code</label><input value={customer.pin} onChange={e => setC('pin', e.target.value)} /></div>
         </div>
-        <div style={{ ...grid3, marginTop: 10 }}>
+        <div className="grid-3" style={{ marginTop: 10 }}>
           <div><label>Aadhaar Number</label><input value={customer.aadhaar} onChange={e => setC('aadhaar', e.target.value)} /></div>
           <div><label>PAN Number (optional)</label><input value={customer.pan} onChange={e => setC('pan', e.target.value)} /></div>
           <div><label>Driving License (optional)</label><input value={customer.dl} onChange={e => setC('dl', e.target.value)} /></div>
@@ -178,12 +178,12 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
       <div className="card">
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>KYC Documents</div>
         <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 10 }}>File contents are not stored in this demo — only the filename is recorded.</div>
-        <div style={grid3}>
+        <div className="grid-3">
           <div><label>Aadhaar</label><input type="file" onChange={e => setKycFile('aadhaar', e)} /></div>
           <div><label>PAN</label><input type="file" onChange={e => setKycFile('pan', e)} /></div>
           <div><label>Photograph</label><input type="file" onChange={e => setKycFile('photo', e)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Address Proof</label><input type="file" onChange={e => setKycFile('addressProof', e)} /></div>
           <div><label>Other KYC Document</label><input type="file" onChange={e => setKycFile('other', e)} /></div>
         </div>
@@ -191,11 +191,11 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
 
       <div className="card">
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Sale Details</div>
-        <div style={grid2}>
+        <div className="grid-2">
           <div><label>Selling Price (₹)</label><input type="number" value={sellingPrice} onChange={e => setSellingPrice(e.target.value)} /></div>
           <div><label>Discount (₹)</label><input type="number" value={discount} onChange={e => setDiscount(e.target.value)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Invoice Number</label><input value={invoice} onChange={e => setInvoice(e.target.value)} /></div>
           <div><label>Date of Sale</label><input type="date" value={saleDate} onChange={e => setSaleDate(e.target.value)} /></div>
         </div>
@@ -269,7 +269,7 @@ export function ClaimsTab({ db, persist, addAudit, showToast, session }) {
       <div className="card">
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Raise a Warranty Claim</div>
         <div>
-          <div style={grid2}>
+          <div className="grid-2">
             <div><label>Vehicle</label>
               <select value={vehicleId} onChange={e => setVehicleId(e.target.value)}>
                 <option value="">Choose vehicle…</option>
@@ -494,13 +494,13 @@ export function CustomerDetailModal({ db, sale, onClose }) {
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>Sold by {distName} · Invoice {sale.invoiceNumber} · {fmtDate(sale.saleDate)}</div>
 
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Customer Information</div>
-        <div style={grid3}>
+        <div className="grid-3">
           <div><label>Father's Name</label><div style={{ fontSize: 13 }}>{c.fatherName || '—'}</div></div>
           <div><label>Mobile</label><div style={{ fontSize: 13 }}>{c.mobile}</div></div>
           <div><label>Alternate Mobile</label><div style={{ fontSize: 13 }}>{c.altMobile || '—'}</div></div>
         </div>
         <div style={{ marginTop: 10 }}><label>Address</label><div style={{ fontSize: 13 }}>{c.address}, {c.city}, {c.state} — {c.pin}</div></div>
-        <div style={{ ...grid3, marginTop: 10 }}>
+        <div className="grid-3" style={{ marginTop: 10 }}>
           <div><label>Aadhaar Number</label><div style={{ fontSize: 13, fontFamily: 'var(--font-mono)' }}>{c.aadhaar || '—'}</div></div>
           <div><label>PAN Number</label><div style={{ fontSize: 13, fontFamily: 'var(--font-mono)' }}>{c.pan || '—'}</div></div>
           <div><label>Driving License</label><div style={{ fontSize: 13, fontFamily: 'var(--font-mono)' }}>{c.dl || '—'}</div></div>
@@ -522,18 +522,18 @@ export function CustomerDetailModal({ db, sale, onClose }) {
         {vehicle && (
           <>
             <div style={{ fontWeight: 700, fontSize: 13, margin: '18px 0 8px' }}>Vehicle & Sale Summary</div>
-            <div style={grid3}>
+            <div className="grid-3">
               <div><label>Vehicle ID</label><div style={{ fontSize: 13, fontFamily: 'var(--font-mono)' }}>{vehicle.id}</div></div>
               <div><label>Model</label><div style={{ fontSize: 13 }}>{vehicle.category} {vehicle.model}</div></div>
               <div><label>Chassis No.</label><div style={{ fontSize: 13, fontFamily: 'var(--font-mono)' }}>{vehicle.chassisNumber}</div></div>
             </div>
-            <div style={{ ...grid3, marginTop: 10 }}>
+            <div className="grid-3" style={{ marginTop: 10 }}>
               <div><label>Selling Price</label><div style={{ fontSize: 13 }}>{inr(sale.sellingPrice)}</div></div>
               <div><label>Discount</label><div style={{ fontSize: 13 }}>{inr(sale.discount)}</div></div>
               <div><label>Net Amount</label><div style={{ fontSize: 13, fontWeight: 700 }}>{inr(sale.sellingPrice - sale.discount)}</div></div>
             </div>
             {vehicle.batteryWarranty && (
-              <div style={{ ...grid2, marginTop: 10 }}>
+              <div className="grid-2" style={{ marginTop: 10 }}>
                 <div><label>Battery Warranty</label><div style={{ fontSize: 13 }}>{fmtDate(vehicle.batteryWarranty.start)} → {fmtDate(vehicle.batteryWarranty.end)}</div></div>
                 <div><label>Charger Warranty</label><div style={{ fontSize: 13 }}>{fmtDate(vehicle.chargerWarranty.start)} → {fmtDate(vehicle.chargerWarranty.end)}</div></div>
               </div>
@@ -551,107 +551,73 @@ export function CustomerDetailModal({ db, sale, onClose }) {
 
 
 
-export function DistributorProfileTab({ db, persist, addAudit, showToast, session }) {
+export function DistributorProfileTab({ db, session }) {
   const distId = session.distributorId;
   const dist = db.distributors.find(d => d.id === distId);
-  const [form, setForm] = useState({
-    ownerName: dist?.ownerName || '',
-    mobile: dist?.mobile || '',
-    address: dist?.address || '',
-    email: dist?.email || '',
-    username: dist?.username || '',
-    password: dist?.password || '',
-  });
-  const [error, setError] = useState('');
-  const [showPw, setShowPw] = useState(false);
-
-  const save = () => {
-    if (!form.ownerName.trim() || !form.mobile.trim() || !form.address.trim() || !form.email.trim() || !form.username.trim() || !form.password.trim()) {
-      setError('Please fill in all fields.');
-      return;
-    }
-
-    const dup = db.distributors.find(d => d.username === form.username.trim() && d.id !== distId);
-    if (dup || form.username.trim() === 'admin') {
-      setError('Username is already taken.');
-      return;
-    }
-
-    setError('');
-    const newDb = {
-      ...db,
-      distributors: db.distributors.map(d => d.id === distId ? {
-        ...d,
-        ownerName: form.ownerName.trim(),
-        mobile: form.mobile.trim(),
-        address: form.address.trim(),
-        email: form.email.trim(),
-        username: form.username.trim(),
-        password: form.password.trim(),
-      } : d)
-    };
-    addAudit(newDb, dist?.shopName || distId, 'Updated distributor profile settings & credentials');
-    persist(newDb);
-    showToast('Profile updated successfully');
-  };
 
   return (
-    <div className="card" style={{ maxWidth: 480, margin: '20px auto 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-        <span style={{ width: 34, height: 34, borderRadius: 9, background: 'linear-gradient(135deg, var(--accent1), var(--accent2))', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-          <UserCircle2 size={18} color="#fff" />
+    <div className="card" style={{ maxWidth: 520, margin: '20px auto 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, borderBottom: '1px solid var(--border)', paddingBottom: 12 }}>
+        <span style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, var(--accent1), var(--accent2))', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+          <UserCircle2 size={20} color="#fff" />
         </span>
-        <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16 }}>My Profile Settings</span>
+        <div>
+          <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 17 }}>{dist?.shopName || 'Distributor Profile'}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Account ID: <code style={{ fontFamily: 'var(--font-mono)' }}>{dist?.id}</code></div>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div>
-          <label>Shop Name (Read-only)</label>
-          <input value={dist?.shopName || ''} disabled style={{ opacity: 0.7, background: 'var(--surface-hover)' }} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div className="grid-2">
+          <div>
+            <label>Shop Name</label>
+            <input value={dist?.shopName || ''} disabled style={{ opacity: 0.85, background: 'var(--surface-2)', fontWeight: 600 }} />
+          </div>
+          <div>
+            <label>GST Number</label>
+            <input value={dist?.gst || ''} disabled style={{ opacity: 0.85, background: 'var(--surface-2)', fontFamily: 'var(--font-mono)' }} />
+          </div>
         </div>
-        <div>
-          <label>GST Number (Read-only)</label>
-          <input value={dist?.gst || ''} disabled style={{ opacity: 0.7, background: 'var(--surface-hover)', fontFamily: 'var(--font-mono)' }} />
-        </div>
-        <div style={grid2}>
+
+        <div className="grid-2">
           <div>
             <label>Owner Name</label>
-            <input value={form.ownerName} onChange={e => setForm({ ...form, ownerName: e.target.value })} placeholder="Owner Name" />
+            <input value={dist?.ownerName || ''} disabled style={{ opacity: 0.85, background: 'var(--surface-2)' }} />
           </div>
           <div>
             <label>Mobile Number</label>
-            <input value={form.mobile} onChange={e => setForm({ ...form, mobile: e.target.value })} placeholder="Mobile" />
+            <input value={dist?.mobile || ''} disabled style={{ opacity: 0.85, background: 'var(--surface-2)' }} />
           </div>
         </div>
+
         <div>
           <label>Email Address</label>
-          <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="Email" />
+          <input value={dist?.email || ''} disabled style={{ opacity: 0.85, background: 'var(--surface-2)' }} />
         </div>
+
         <div>
-          <label>Address</label>
-          <input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="Address" />
+          <label>Shop Address</label>
+          <input value={dist?.address || ''} disabled style={{ opacity: 0.85, background: 'var(--surface-2)' }} />
         </div>
-        <div style={grid2}>
+
+        <div className="grid-2">
           <div>
             <label>Login Username</label>
-            <input value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} placeholder="Username" />
+            <input value={dist?.username || ''} disabled style={{ opacity: 0.85, background: 'var(--surface-2)', fontFamily: 'var(--font-mono)' }} />
           </div>
           <div>
-            <label>Password</label>
-            <div style={{ position: 'relative' }}>
-              <input type={showPw ? 'text' : 'password'} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="Password" />
-              <span onClick={() => setShowPw(s => !s)} style={{ position: 'absolute', right: 10, top: 9, cursor: 'pointer', color: 'var(--text-muted)' }}>
-                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+            <label>Account Status</label>
+            <div style={{ paddingTop: 6 }}>
+              <span className="badge" style={{ background: dist?.status === 'active' ? '#33D69F22' : '#FF5C5C22', color: dist?.status === 'active' ? 'var(--success)' : 'var(--danger)', fontSize: 12, padding: '5px 12px' }}>
+                {dist?.status ? dist.status.toUpperCase() : 'ACTIVE'}
               </span>
             </div>
           </div>
         </div>
 
-        {error && <div style={{ color: 'var(--danger)', fontSize: 12 }}>{error}</div>}
-
-        <button className="btn btn-primary" style={{ marginTop: 8, justifyContent: 'center' }} onClick={save}>
-          Save Profile Changes
-        </button>
+        <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-dim)', textAlign: 'center' }}>
+          To update your distributor account details or password, please contact the Super Admin.
+        </div>
       </div>
     </div>
   );

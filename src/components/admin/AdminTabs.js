@@ -136,7 +136,7 @@ export function AdminDashboard({ db }) {
         </div>
       </div>
 
-      <div style={grid2}>
+      <div className="grid-2">
         <div className="card">
           <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Recent Supply Transactions</div>
           {recentTx.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>No transactions yet.</div>}
@@ -282,7 +282,7 @@ export function EditVehicleModal({ vehicle, onClose, onSave }) {
     <Modal title={`Edit Vehicle — ${vehicle.id}`} onClose={onClose}>
       <div>
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Component Numbers</div>
-        <div style={grid3}>
+        <div className="grid-3">
           <div><label>Motor Number</label><input value={motorNumber} onChange={e => setMotorNumber(e.target.value)} /></div>
           <div><label>Battery Serial Number</label><input value={batterySerial} onChange={e => setBatterySerial(e.target.value)} /></div>
           <div><label>Charger Serial Number</label><input value={chargerSerial} onChange={e => setChargerSerial(e.target.value)} /></div>
@@ -295,12 +295,12 @@ export function EditVehicleModal({ vehicle, onClose, onSave }) {
         ) : (
           <>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 }}>Battery Warranty</div>
-            <div style={grid2}>
+            <div className="grid-2">
               <div><label>Start Date</label><input type="date" value={battery.start} onChange={e => setBattery(b => ({ ...b, start: e.target.value }))} /></div>
               <div><label>End Date</label><input type="date" value={battery.end} onChange={e => setBattery(b => ({ ...b, end: e.target.value }))} /></div>
             </div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', margin: '10px 0 6px' }}>Charger Warranty</div>
-            <div style={grid2}>
+            <div className="grid-2">
               <div><label>Start Date</label><input type="date" value={charger.start} onChange={e => setCharger(c => ({ ...c, start: e.target.value }))} /></div>
               <div><label>End Date</label><input type="date" value={charger.end} onChange={e => setCharger(c => ({ ...c, end: e.target.value }))} /></div>
             </div>
@@ -338,7 +338,7 @@ export function AddVehicleModal({ onClose, onSave }) {
   return (
     <Modal title="Add New Vehicle" onClose={onClose}>
       <div>
-        <div style={grid2}>
+        <div className="grid-2">
           <div><label>Vehicle Category</label>
             <select value={cat} onChange={e => { setCat(e.target.value); setModel(CATEGORIES[e.target.value][0]); }}>
               {Object.keys(CATEGORIES).map(c => <option key={c}>{c}</option>)}
@@ -350,15 +350,15 @@ export function AddVehicleModal({ onClose, onSave }) {
             </select>
           </div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Chassis Number</label><input value={form.chassisNumber} onChange={e => set('chassisNumber', e.target.value)} /></div>
           <div><label>Motor Number</label><input value={form.motorNumber} onChange={e => set('motorNumber', e.target.value)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Battery Serial Number</label><input value={form.batterySerial} onChange={e => set('batterySerial', e.target.value)} /></div>
           <div><label>Charger Serial Number</label><input value={form.chargerSerial} onChange={e => set('chargerSerial', e.target.value)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Manufacturing Date</label><input type="date" value={form.manufacturingDate} onChange={e => set('manufacturingDate', e.target.value)} /></div>
           <div><label>Purchase Date</label><input type="date" value={form.purchaseDate} onChange={e => set('purchaseDate', e.target.value)} /></div>
         </div>
@@ -478,16 +478,16 @@ export function DistributorModal({ mode, data, onClose, onSave }) {
   return (
     <Modal title={mode === 'add' ? 'Add Distributor' : 'Edit Distributor'} onClose={onClose}>
       <div>
-        <div style={grid2}>
+        <div className="grid-2">
           <div><label>Shop Name</label><input value={form.shopName} onChange={e => set('shopName', e.target.value)} /></div>
           <div><label>Owner Name</label><input value={form.ownerName} onChange={e => set('ownerName', e.target.value)} /></div>
         </div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Mobile Number</label><input value={form.mobile} onChange={e => set('mobile', e.target.value)} /></div>
           <div><label>GST Number</label><input value={form.gst} onChange={e => set('gst', e.target.value)} /></div>
         </div>
         <div style={{ marginTop: 10 }}><label>Address</label><input value={form.address} onChange={e => set('address', e.target.value)} /></div>
-        <div style={{ ...grid2, marginTop: 10 }}>
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Email</label><input type="email" value={form.email} onChange={e => set('email', e.target.value)} /></div>
           <div><label>Username</label><input value={form.username} onChange={e => set('username', e.target.value)} /></div>
         </div>
@@ -560,7 +560,7 @@ export function SupplyTab({ db, persist, addAudit, showToast }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div className="card">
-        <div style={grid3}>
+        <div className="grid-3">
           <div>
             <label>Select Distributor</label>
             <select value={distributorId} onChange={e => setDistributorId(e.target.value)}>
@@ -571,7 +571,7 @@ export function SupplyTab({ db, persist, addAudit, showToast }) {
           <div><label>Date</label><input type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
           <div><label>Invoice Number</label><input value={invoice} onChange={e => setInvoice(e.target.value)} /></div>
         </div>
-        <div style={{ ...grid3, marginTop: 10 }}>
+        <div className="grid-3" style={{ marginTop: 10 }}>
           <div><label>Filter by Category</label>
             <select value={catF} onChange={e => { setCatF(e.target.value); setModelF('All'); }}>
               <option>All</option>{Object.keys(CATEGORIES).map(c => <option key={c}>{c}</option>)}
@@ -592,7 +592,7 @@ export function SupplyTab({ db, persist, addAudit, showToast }) {
 
       <div className="card">
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Payment Terms</div>
-        <div style={grid3}>
+        <div className="grid-3">
           <div><label>Payment Type</label>
             <select value={paymentType} onChange={e => setPaymentType(e.target.value)}>
               <option>Cash</option><option>Credit</option>
@@ -625,7 +625,7 @@ export function SupplyTab({ db, persist, addAudit, showToast }) {
         </div>
         {smsEnabled && (
           <>
-            <div style={grid2}>
+            <div className="grid-2">
               <div><label>Schedule Date &amp; Time</label><input type="datetime-local" value={smsSchedule} onChange={e => setSmsSchedule(e.target.value)} /></div>
               <div><label>Distributor Mobile</label><input value={db.distributors.find(d => d.id === distributorId)?.mobile || ''} disabled /></div>
             </div>
@@ -775,12 +775,12 @@ export function WarrantyEditForm({ vehicle, onSave, onClose }) {
   return (
     <div>
       <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Battery Warranty</div>
-      <div style={grid2}>
+      <div className="grid-2">
         <div><label>Start Date</label><input type="date" value={battery.start} onChange={e => setBattery(b => ({ ...b, start: e.target.value }))} /></div>
         <div><label>End Date</label><input type="date" value={battery.end} onChange={e => setBattery(b => ({ ...b, end: e.target.value }))} /></div>
       </div>
       <div style={{ fontWeight: 700, fontSize: 13, margin: '16px 0 8px' }}>Charger Warranty</div>
-      <div style={grid2}>
+      <div className="grid-2">
         <div><label>Start Date</label><input type="date" value={charger.start} onChange={e => setCharger(c => ({ ...c, start: e.target.value }))} /></div>
         <div><label>End Date</label><input type="date" value={charger.end} onChange={e => setCharger(c => ({ ...c, end: e.target.value }))} /></div>
       </div>
@@ -857,7 +857,7 @@ export function ReportsTab({ db }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div className="card">
-        <div style={grid3}>
+        <div className="grid-3">
           <div><label>Report Type</label>
             <select value={reportType} onChange={e => setReportType(e.target.value)}>{reportTypes.map(r => <option key={r}>{r}</option>)}</select>
           </div>
@@ -1156,7 +1156,7 @@ export function RecordPaymentModal({ db, onClose, onSave }) {
   return (
     <Modal title="Record Payment" onClose={onClose}>
       <div>
-        <div style={grid2}>
+        <div className="grid-2">
           <div><label>Distributor</label>
             <select value={distributorId} onChange={e => { setDistributorId(e.target.value); setTransactionId(''); }}>
               <option value="">Choose distributor…</option>
@@ -1385,7 +1385,7 @@ export function AddAnnouncementModal({ onClose, onSave }) {
   return (
     <Modal title="New Announcement" onClose={onClose}>
       <div>
-        <div style={grid2}>
+        <div className="grid-2">
           <div><label>Type</label>
             <select value={type} onChange={e => setType(e.target.value)}>{ANNOUNCEMENT_TYPES.map(t => <option key={t}>{t}</option>)}</select>
           </div>
@@ -1425,13 +1425,13 @@ export function CustomerDetailModal({ db, sale, onClose }) {
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>Sold by {distName} · Invoice {sale.invoiceNumber} · {fmtDate(sale.saleDate)}</div>
 
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Customer Information</div>
-        <div style={grid3}>
+        <div className="grid-3">
           <div><label>Father's Name</label><div style={{ fontSize: 13 }}>{c.fatherName || '—'}</div></div>
           <div><label>Mobile</label><div style={{ fontSize: 13 }}>{c.mobile}</div></div>
           <div><label>Alternate Mobile</label><div style={{ fontSize: 13 }}>{c.altMobile || '—'}</div></div>
         </div>
         <div style={{ marginTop: 10 }}><label>Address</label><div style={{ fontSize: 13 }}>{c.address}, {c.city}, {c.state} — {c.pin}</div></div>
-        <div style={{ ...grid3, marginTop: 10 }}>
+        <div className="grid-3" style={{ marginTop: 10 }}>
           <div><label>Aadhaar Number</label><div style={{ fontSize: 13, fontFamily: 'var(--font-mono)' }}>{c.aadhaar || '—'}</div></div>
           <div><label>PAN Number</label><div style={{ fontSize: 13, fontFamily: 'var(--font-mono)' }}>{c.pan || '—'}</div></div>
           <div><label>Driving License</label><div style={{ fontSize: 13, fontFamily: 'var(--font-mono)' }}>{c.dl || '—'}</div></div>
@@ -1453,18 +1453,18 @@ export function CustomerDetailModal({ db, sale, onClose }) {
         {vehicle && (
           <>
             <div style={{ fontWeight: 700, fontSize: 13, margin: '18px 0 8px' }}>Vehicle & Sale Summary</div>
-            <div style={grid3}>
+            <div className="grid-3">
               <div><label>Vehicle ID</label><div style={{ fontSize: 13, fontFamily: 'var(--font-mono)' }}>{vehicle.id}</div></div>
               <div><label>Model</label><div style={{ fontSize: 13 }}>{vehicle.category} {vehicle.model}</div></div>
               <div><label>Chassis No.</label><div style={{ fontSize: 13, fontFamily: 'var(--font-mono)' }}>{vehicle.chassisNumber}</div></div>
             </div>
-            <div style={{ ...grid3, marginTop: 10 }}>
+            <div className="grid-3" style={{ marginTop: 10 }}>
               <div><label>Selling Price</label><div style={{ fontSize: 13 }}>{inr(sale.sellingPrice)}</div></div>
               <div><label>Discount</label><div style={{ fontSize: 13 }}>{inr(sale.discount)}</div></div>
               <div><label>Net Amount</label><div style={{ fontSize: 13, fontWeight: 700 }}>{inr(sale.sellingPrice - sale.discount)}</div></div>
             </div>
             {vehicle.batteryWarranty && (
-              <div style={{ ...grid2, marginTop: 10 }}>
+              <div className="grid-2" style={{ marginTop: 10 }}>
                 <div><label>Battery Warranty</label><div style={{ fontSize: 13 }}>{fmtDate(vehicle.batteryWarranty.start)} → {fmtDate(vehicle.batteryWarranty.end)}</div></div>
                 <div><label>Charger Warranty</label><div style={{ fontSize: 13 }}>{fmtDate(vehicle.chargerWarranty.start)} → {fmtDate(vehicle.chargerWarranty.end)}</div></div>
               </div>

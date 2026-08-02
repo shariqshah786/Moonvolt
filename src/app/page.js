@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { seedDB } from '../lib/seed';
 import { LoginScreen } from '../components/auth/LoginScreen';
 import { Shell } from '../components/layout/Shell';
@@ -16,50 +16,67 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [toast, setToast] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isSavingRef = useRef(false);
+
+  // Load database from Real-Time MongoDB API endpoint
+  const loadDbFromApi = useCallback(async (isInitial = false) => {
+    try {
+      const res = await fetch('/api/db', { cache: 'no-store' });
+      if (!res.ok) throw new Error('API fetch failed');
+      const data = await res.json();
+      if (data && !data.error) {
+        if (!isSavingRef.current) {
+          setDb(data);
+          try { localStorage.setItem('vdms_local_cache', JSON.stringify(data)); } catch (_) {}
+        }
+        if (isInitial) setLoading(false);
+        return true;
+      }
+      throw new Error(data.error || 'Invalid DB format');
+    } catch (e) {
+      console.warn('MongoDB sync failed, using fallback cache:', e);
+      if (isInitial) {
+        let local = null;
+        try {
+          const cached = localStorage.getItem('vdms_local_cache');
+          if (cached) local = JSON.parse(cached);
+        } catch (_) {}
+        setDb(local || seedDB());
+        setLoading(false);
+      }
+      return false;
+    }
+  }, []);
 
   useEffect(() => {
-    let settled = false;
-    const finish = (data) => {
-      if (settled) return;
-      settled = true;
-      setDb(data);
-      setLoading(false);
-    };
+    loadDbFromApi(true);
 
-    // Safety net: never let a hung or unavailable storage call block the app.
-    // If storage doesn't respond within 4s, fall back to a fresh in-memory seed.
-    const timeout = setTimeout(() => {
-      if (!settled) finish(seedDB());
-    }, 4000);
+    // Real-Time database sync polling (every 3 seconds)
+    const interval = setInterval(() => {
+      loadDbFromApi(false);
+    }, 3000);
 
-    (async () => {
-      try {
-        if (!window.storage || typeof window.storage.get !== 'function') {
-          throw new Error('storage unavailable');
-        }
-        const res = await window.storage.get('vdms', true);
-        if (res && res.value) {
-          finish(JSON.parse(res.value));
-        } else {
-          const seeded = seedDB();
-          finish(seeded);
-          try { await window.storage.set('vdms', JSON.stringify(seeded), true); } catch (_) {}
-        }
-      } catch (e) {
-        const seeded = seedDB();
-        finish(seeded);
-        try { await window.storage.set('vdms', JSON.stringify(seeded), true); } catch (_) {}
-      } finally {
-        clearTimeout(timeout);
-      }
-    })();
-
-    return () => clearTimeout(timeout);
-  }, []);
+    return () => clearInterval(interval);
+  }, [loadDbFromApi]);
 
   const persist = useCallback(async (newDb) => {
     setDb(newDb);
-    try { await window.storage.set('vdms', JSON.stringify(newDb), true); } catch (_) {}
+    try { localStorage.setItem('vdms_local_cache', JSON.stringify(newDb)); } catch (_) {}
+
+    isSavingRef.current = true;
+    try {
+      await fetch('/api/db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newDb),
+      });
+    } catch (err) {
+      console.error('Failed to persist state to MongoDB:', err);
+    } finally {
+      setTimeout(() => {
+        isSavingRef.current = false;
+      }, 1000);
+    }
   }, []);
 
   const showToast = useCallback((msg, kind = 'success') => {
@@ -68,7 +85,7 @@ export default function App() {
   }, []);
 
   const addAudit = useCallback((dbState, user, action) => {
-    dbState.auditLog = [{ id: uid('LOG'), timestamp: new Date().toISOString(), user, action }, ...dbState.auditLog];
+    dbState.auditLog = [{ id: uid('LOG'), timestamp: new Date().toISOString(), user, action }, ...(dbState.auditLog || [])];
     return dbState;
   }, []);
 
@@ -76,7 +93,7 @@ export default function App() {
     return (
       <div style={{ ...rootVars(theme), minHeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', fontFamily: 'var(--font-body)' }}>
         <style>{globalCss}</style>
-        <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>Loading Vehicle Distribution System…</div>
+        <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>Connecting to Real-time Database…</div>
       </div>
     );
   }
@@ -104,3 +121,4 @@ export default function App() {
     </div>
   );
 }
+
