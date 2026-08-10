@@ -10,8 +10,8 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { CATEGORIES, ALL_MODELS, STATUSES, STATUS_COLORS, LOW_STOCK_THRESHOLD, BATTERY_WARRANTY_MONTHS, CHARGER_WARRANTY_MONTHS, STORAGE_KEY, PAYMENT_MODES, ANNOUNCEMENT_TYPES, SMS_TYPES, ADMIN_CREDENTIALS } from '../../lib/constants';
-import { uid, pad4, genVehicleId, genInvoice, fmtDate, todayStr, addMonths, daysUntil, inr, csvDownload, excelDownload, printReport } from '../../lib/helpers';
-import { StatCard, StatusBadge, grid2, grid3 } from '../ui/SharedUI';
+import { uid, pad4, genVehicleId, genInvoice, fmtDate, todayStr, addMonths, daysUntil, inr, csvDownload, excelDownload, printReport, billingOf, billingTotals } from '../../lib/helpers';
+import { StatCard, StatusBadge, Modal, grid2, grid3 } from '../ui/SharedUI';
 
 
 
@@ -318,9 +318,10 @@ export function txnFinance(t, payments) {
 
 
 
-export function DistributorFinanceTab({ db, session }) {
+export function DistributorFinanceTab({ db, persist, addAudit, showToast, session }) {
   const myTxns = db.transactions.filter(t => t.distributorId === session.distributorId);
   const myPayments = (db.payments || []).filter(p => p.distributorId === session.distributorId);
+  const [collecting, setCollecting] = useState(null);
 
   let billed = 0, interest = 0, payable = 0, paid = 0;
   myTxns.forEach(t => {
@@ -328,6 +329,26 @@ export function DistributorFinanceTab({ db, session }) {
     billed += t.totalAmount || 0; interest += f.interest; payable += f.payable; paid += f.paid;
   });
   const pending = payable - paid;
+
+  const mySales = db.sales.filter(s => s.distributorId === session.distributorId);
+  let custCollected = 0, custPending = 0, custOverdueCount = 0;
+  const receivables = mySales.map(s => {
+    const billing = billingOf(s);
+    const t = billingTotals(billing);
+    custCollected += t.paid; custPending += t.pending;
+    if (t.overdue) custOverdueCount++;
+    return { sale: s, billing, t };
+  }).filter(r => r.t.pending > 0).sort((a, b) => (a.billing.pendingDueDate || '').localeCompare(b.billing.pendingDueDate || ''));
+
+  const recordCollection = (sale, entry) => {
+    const billing = billingOf(sale);
+    const newBilling = { ...billing, payments: [...(billing.payments || []), { id: uid('PMT'), ...entry }] };
+    const newDb = { ...db, sales: db.sales.map(s => s.id === sale.id ? { ...s, billing: newBilling } : s) };
+    addAudit(newDb, session.name, `Collected ${inr(entry.amount)} from ${sale.customer.fullName} (Invoice ${sale.invoiceNumber})`);
+    persist(newDb);
+    showToast(`Payment of ${inr(entry.amount)} recorded`);
+    setCollecting(null);
+  };
 
   const exportStatement = () => {
     const rows = myTxns.map(t => {
@@ -339,6 +360,7 @@ export function DistributorFinanceTab({ db, session }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ fontWeight: 700, fontSize: 14 }}>What I Owe the Company</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14 }}>
         <StatCard label="Total Billed" value={inr(billed)} icon={IndianRupee} accent="#3B82F6" />
         <StatCard label="Interest Charged" value={inr(interest)} icon={Percent} accent="#FFB020" />
@@ -377,7 +399,7 @@ export function DistributorFinanceTab({ db, session }) {
       </div>
 
       <div className="card scrollx">
-        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>My Payment History</div>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>My Payment History (to Company)</div>
         <table>
           <thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Note</th></tr></thead>
           <tbody>
@@ -388,7 +410,72 @@ export function DistributorFinanceTab({ db, session }) {
           </tbody>
         </table>
       </div>
+
+      <div style={{ fontWeight: 700, fontSize: 14, marginTop: 8 }}>What Customers Owe Me</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14 }}>
+        <StatCard label="Collected from Customers" value={inr(custCollected)} icon={Wallet} accent="#33D69F" />
+        <StatCard label="Pending from Customers" value={inr(custPending)} icon={CalendarClock} accent={custPending > 0 ? '#FF5C5C' : '#33D69F'} />
+        <StatCard label="Overdue Customers" value={custOverdueCount} icon={AlertTriangle} accent="#FF5C5C" />
+      </div>
+
+      <div className="card scrollx">
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Pending Customer Receivables</div>
+        <table>
+          <thead><tr><th>Invoice</th><th>Customer</th><th>Mobile</th><th>Net Amount</th><th>Received</th><th>Pending</th><th>Due Date</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            {receivables.map(({ sale, billing, t }) => (
+              <tr key={sale.id}>
+                <td style={{ fontFamily: 'var(--font-mono)' }}>{sale.invoiceNumber}</td>
+                <td>{sale.customer.fullName}</td>
+                <td>{sale.customer.mobile}</td>
+                <td>{inr(billing.totalAmount)}</td>
+                <td>{inr(t.paid)}</td>
+                <td style={{ fontWeight: 700, color: 'var(--danger)' }}>{inr(t.pending)}</td>
+                <td>{billing.pendingDueDate ? fmtDate(billing.pendingDueDate) : '—'}</td>
+                <td>{t.overdue ? <span className="badge" style={{ background: '#FF5C5C22', color: 'var(--danger)' }}>Overdue</span> : <span className="badge" style={{ background: '#FFB02022', color: 'var(--warning)' }}>Pending</span>}</td>
+                <td><button className="btn btn-sm" onClick={() => setCollecting(sale)}><Wallet size={12} /> Collect</button></td>
+              </tr>
+            ))}
+            {receivables.length === 0 && <tr><td colSpan={9} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No pending customer balances — nice work!</td></tr>}
+          </tbody>
+        </table>
+      </div>
+
+      {collecting && <RecordCustomerPaymentModal sale={collecting} onClose={() => setCollecting(null)} onSave={(entry) => recordCollection(collecting, entry)} />}
     </div>
+  );
+}
+
+export function RecordCustomerPaymentModal({ sale, onClose, onSave }) {
+  const t = billingTotals(billingOf(sale));
+  const [amount, setAmount] = useState(t.pending);
+  const [mode, setMode] = useState('Cash');
+  const [date, setDate] = useState(todayStr());
+  const [error, setError] = useState('');
+
+  const submit = () => {
+    if (!amount || Number(amount) <= 0) { setError('Enter an amount greater than 0.'); return; }
+    onSave({ amount: Number(amount), mode, date, note: '' });
+  };
+
+  return (
+    <Modal title={`Collect Payment — ${sale.invoiceNumber}`} onClose={onClose} width={420}>
+      <div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
+          {sale.customer.fullName} · Pending: <b style={{ color: 'var(--danger)' }}>{inr(t.pending)}</b>
+        </div>
+        <div className="grid-2">
+          <div><label>Amount (₹)</label><input type="number" value={amount} onChange={e => setAmount(e.target.value)} /></div>
+          <div><label>Mode</label><select value={mode} onChange={e => setMode(e.target.value)}>{PAYMENT_MODES.map(m => <option key={m}>{m}</option>)}</select></div>
+        </div>
+        <div style={{ marginTop: 10 }}><label>Date</label><input type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
+        {error && <div style={{ color: 'var(--danger)', fontSize: 12, marginTop: 10 }}>{error}</div>}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
+          <div className="btn" onClick={onClose}>Cancel</div>
+          <div className="btn btn-primary" onClick={submit}><Wallet size={14} /> Save Payment</div>
+        </div>
+      </div>
+    </Modal>
   );
 }
 
@@ -540,6 +627,37 @@ export function CustomerDetailModal({ db, sale, onClose }) {
             )}
           </>
         )}
+
+        {(() => {
+          const billing = billingOf(sale);
+          const t = billingTotals(billing);
+          return (
+            <>
+              <div style={{ fontWeight: 700, fontSize: 13, margin: '18px 0 8px' }}>Billing &amp; Payments</div>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                <span className="badge" style={{ background: 'var(--surface-2)', color: 'var(--text)' }}>{billing.paymentType}</span>
+                {t.status === 'Paid' && <span className="badge" style={{ background: '#33D69F22', color: 'var(--success)' }}>Fully Paid</span>}
+                {t.status !== 'Paid' && <span className="badge" style={{ background: t.overdue ? '#FF5C5C22' : '#FFB02022', color: t.overdue ? 'var(--danger)' : 'var(--warning)' }}>{t.overdue ? 'Overdue' : t.status}</span>}
+              </div>
+              <div className="grid-3">
+                <div><label>Net Amount</label><div style={{ fontSize: 13, fontWeight: 700 }}>{inr(billing.totalAmount)}</div></div>
+                <div><label>Received</label><div style={{ fontSize: 13, color: 'var(--success)' }}>{inr(t.paid)}</div></div>
+                <div><label>Pending</label><div style={{ fontSize: 13, color: t.pending > 0 ? 'var(--danger)' : 'var(--text)' }}>{inr(t.pending)}</div></div>
+              </div>
+              {billing.pendingDueDate && <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-muted)' }}>Remaining balance expected by <b style={{ color: 'var(--text)' }}>{fmtDate(billing.pendingDueDate)}</b>{billing.financer ? ` · Financed via ${billing.financer}` : ''}</div>}
+              {billing.payments && billing.payments.length > 0 && (
+                <div style={{ marginTop: 10 }}>
+                  <table>
+                    <thead><tr><th>Date</th><th>Amount</th><th>Mode</th></tr></thead>
+                    <tbody>
+                      {billing.payments.map(p => <tr key={p.id}><td>{fmtDate(p.date)}</td><td>{inr(p.amount)}</td><td>{p.mode}</td></tr>)}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          );
+        })()}
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18 }}>
           <div className="btn" onClick={onClose}>Close</div>

@@ -33,6 +33,28 @@ export const daysUntil = (dateStr) => {
 
 export const inr = (n) => `\u20B9${Number(n || 0).toLocaleString('en-IN')}`;
 
+export const CUSTOMER_PAYMENT_TYPES = ['Full Payment', 'Partial Payment', 'Full Credit'];
+
+// Returns a normalized billing object for a sale, synthesizing one for legacy sales.
+export function billingOf(sale) {
+  const net = sale.sellingPrice - sale.discount;
+  if (sale.billing) return sale.billing;
+  return {
+    totalAmount: net,
+    payments: [{ id: 'legacy', amount: net, mode: 'Cash', date: sale.saleDate, note: 'Full payment at sale' }],
+    pendingDueDate: null, paymentType: 'Full Payment', financer: null,
+  };
+}
+
+// Derives paid/pending totals + status from a billing object (never stored, always computed live).
+export function billingTotals(billing) {
+  const paid = (billing.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0);
+  const pending = Math.max(billing.totalAmount - paid, 0);
+  const overdue = pending > 0 && billing.pendingDueDate && daysUntil(billing.pendingDueDate) < 0;
+  const status = pending <= 0 ? 'Paid' : paid > 0 ? 'Partially Paid' : 'Pending';
+  return { paid, pending, overdue, status };
+}
+
 export const csvDownload = (filename, rows) => {
   if (!rows.length) return;
   const headers = Object.keys(rows[0]);

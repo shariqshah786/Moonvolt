@@ -115,7 +115,7 @@ export function Shell({ theme, setTheme, session, setSession, db, persist, addAu
           {activeTab === 'distributors' && <DistributorsTab db={db} persist={persist} addAudit={addAudit} showToast={showToast} />}
           {activeTab === 'supply' && <SupplyTab db={db} persist={persist} addAudit={addAudit} showToast={showToast} />}
           {activeTab === 'finance' && isAdmin && <FinanceTab db={db} persist={persist} addAudit={addAudit} showToast={showToast} />}
-          {activeTab === 'finance' && !isAdmin && <DistributorFinanceTab db={db} session={session} />}
+          {activeTab === 'finance' && !isAdmin && <DistributorFinanceTab db={db} persist={persist} addAudit={addAudit} showToast={showToast} session={session} />}
           {activeTab === 'sales' && <AdminSalesTab db={db} />}
           {activeTab === 'saleslocations' && <SalesLocationsTab db={db} />}
           {activeTab === 'warranty' && <WarrantyTab db={db} persist={persist} addAudit={addAudit} showToast={showToast} isAdmin={isAdmin} session={session} />}
