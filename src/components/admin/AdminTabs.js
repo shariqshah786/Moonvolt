@@ -10,7 +10,7 @@ import {
   MessageSquare, History, ExternalLink, FileCheck2, BatteryFull, Paperclip, Wrench
 } from 'lucide-react';
 import { CATEGORIES, ALL_MODELS, STATUSES, STATUS_COLORS, LOW_STOCK_THRESHOLD, BATTERY_WARRANTY_MONTHS, CHARGER_WARRANTY_MONTHS, STORAGE_KEY, PAYMENT_MODES, ANNOUNCEMENT_TYPES, SMS_TYPES, ADMIN_CREDENTIALS } from '../../lib/constants';
-import { uid, pad4, genVehicleId, genInvoice, fmtDate, todayStr, addMonths, daysUntil, inr, csvDownload, excelDownload, printReport } from '../../lib/helpers';
+import { uid, pad4, genVehicleId, genInvoice, fmtDate, todayStr, addMonths, daysUntil, inr, csvDownload, excelDownload, printReport, billingOf, billingTotals } from '../../lib/helpers';
 import { StatCard, StatusBadge, Modal, grid2, grid3 } from '../ui/SharedUI';
 
 
@@ -1508,22 +1508,29 @@ export function AdminSalesTab({ db }) {
       </div>
       <div className="card scrollx">
         <table>
-          <thead><tr><th>Invoice</th><th>Vehicle ID</th><th>Customer</th><th>Mobile</th><th>City</th><th>Distributor</th><th>Price</th><th>Date</th><th></th></tr></thead>
+          <thead><tr><th>Invoice</th><th>Vehicle ID</th><th>Customer</th><th>Mobile</th><th>City</th><th>Distributor</th><th>Price</th><th>Payment Status</th><th>Date</th><th></th></tr></thead>
           <tbody>
-            {sales.map(s => (
-              <tr key={s.id}>
-                <td style={{ fontFamily: 'var(--font-mono)' }}>{s.invoiceNumber}</td>
-                <td style={{ fontFamily: 'var(--font-mono)' }}>{s.vehicleId}</td>
-                <td>{s.customer.fullName}</td>
-                <td>{s.customer.mobile}</td>
-                <td>{s.customer.city}</td>
-                <td>{db.distributors.find(d => d.id === s.distributorId)?.shopName || s.distributorId}</td>
-                <td>{inr(s.sellingPrice)}</td>
-                <td>{fmtDate(s.saleDate)}</td>
-                <td><span onClick={() => setViewing(s)} style={{ color: 'var(--accent2)', cursor: 'pointer', fontWeight: 600, fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}><ExternalLink size={12} /> View Details</span></td>
-              </tr>
-            ))}
-            {sales.length === 0 && <tr><td colSpan={9} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No sales match your filters.</td></tr>}
+            {sales.map(s => {
+              const t = billingTotals(billingOf(s));
+              return (
+                <tr key={s.id}>
+                  <td style={{ fontFamily: 'var(--font-mono)' }}>{s.invoiceNumber}</td>
+                  <td style={{ fontFamily: 'var(--font-mono)' }}>{s.vehicleId}</td>
+                  <td>{s.customer.fullName}</td>
+                  <td>{s.customer.mobile}</td>
+                  <td>{s.customer.city}</td>
+                  <td>{db.distributors.find(d => d.id === s.distributorId)?.shopName || s.distributorId}</td>
+                  <td>{inr(s.sellingPrice)}</td>
+                  <td>
+                    {t.status === 'Paid' && <span className="badge" style={{ background: '#33D69F22', color: 'var(--success)' }}>Paid</span>}
+                    {t.status !== 'Paid' && <span className="badge" style={{ background: t.overdue ? '#FF5C5C22' : '#FFB02022', color: t.overdue ? 'var(--danger)' : 'var(--warning)' }}>{t.overdue ? 'Overdue' : t.status}</span>}
+                  </td>
+                  <td>{fmtDate(s.saleDate)}</td>
+                  <td><span onClick={() => setViewing(s)} style={{ color: 'var(--accent2)', cursor: 'pointer', fontWeight: 600, fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}><ExternalLink size={12} /> View Details</span></td>
+                </tr>
+              );
+            })}
+            {sales.length === 0 && <tr><td colSpan={10} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No sales match your filters.</td></tr>}
           </tbody>
         </table>
       </div>

@@ -101,6 +101,19 @@ export function seedDB() {
       batteryWarranty: { start: battStart, end: battEnd },
       chargerWarranty: { start: saleDate, end: chgEnd },
     });
+    const netAmount = (cat === 'Passenger' ? 118000 + i * 1500 : 165000 + i * 2000) - 2000;
+    let billing;
+    if (i % 4 === 0) {
+      billing = { totalAmount: netAmount, payments: [{ id: uid('PMT'), amount: netAmount, mode: 'Cash', date: saleDate, note: '' }], pendingDueDate: null, paymentType: 'Full Payment', financer: null };
+    } else if (i % 4 === 1) {
+      const paidNow = Math.round(netAmount * 0.6);
+      billing = { totalAmount: netAmount, payments: [{ id: uid('PMT'), amount: paidNow, mode: 'UPI', date: saleDate, note: '' }], pendingDueDate: addMonths(todayStr(), 1), paymentType: 'Partial Payment', financer: null };
+    } else if (i % 4 === 2) {
+      const paidNow = Math.round(netAmount * 0.5);
+      billing = { totalAmount: netAmount, payments: [{ id: uid('PMT'), amount: Math.round(paidNow * 0.5), mode: 'Cash', date: saleDate, note: '' }, { id: uid('PMT'), amount: Math.round(paidNow * 0.5), mode: 'UPI', date: saleDate, note: '' }], pendingDueDate: addMonths(saleDate, 2), paymentType: 'Partial Payment', financer: null };
+    } else {
+      billing = { totalAmount: netAmount, payments: [], pendingDueDate: addMonths(todayStr(), 2), paymentType: 'Full Credit', financer: 'Bajaj Finserv' };
+    }
     sales.push({
       id: uid('SALE'), vehicleId: vId, distributorId: distId,
       customer: {
@@ -110,7 +123,7 @@ export function seedDB() {
       },
       kyc: { aadhaar: true, pan: i % 2 === 0, photo: true, addressProof: true, other: false },
       sellingPrice: cat === 'Passenger' ? 118000 + i * 1500 : 165000 + i * 2000,
-      discount: 2000, invoiceNumber: genInvoice('SAL'), saleDate,
+      discount: 2000, invoiceNumber: genInvoice('SAL'), saleDate, billing,
     });
     pushAudit(distributors.find(d => d.id === distId)?.shopName || distId, `Sold vehicle ${vId} to ${custNames[i]}`);
   }

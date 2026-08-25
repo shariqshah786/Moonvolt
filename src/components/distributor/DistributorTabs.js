@@ -104,11 +104,24 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
   const [invoice, setInvoice] = useState(genInvoice('SAL'));
   const [saleDate, setSaleDate] = useState(todayStr());
 
+  const [isFullCredit, setIsFullCredit] = useState(false);
+  const [payments, setPayments] = useState([{ id: uid('PMT'), amount: '', mode: 'Cash', date: todayStr() }]);
+  const [pendingDueDate, setPendingDueDate] = useState(addMonths(todayStr(), 1));
+  const [financer, setFinancer] = useState('');
+
   const setC = (k, v) => setCustomer(c => ({ ...c, [k]: v }));
   const setKycFile = (k, e) => setKyc(x => ({ ...x, [k]: e.target.files?.[0]?.name || null }));
 
   const selectedVehicle = db.vehicles.find(v => v.id === vehicleId);
   const [error, setError] = useState('');
+
+  const netAmount = (Number(sellingPrice) || 0) - (Number(discount) || 0);
+  const receivedNow = isFullCredit ? 0 : payments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  const balance = Math.max(netAmount - receivedNow, 0);
+
+  const addPaymentRow = () => setPayments(p => [...p, { id: uid('PMT'), amount: '', mode: 'Cash', date: todayStr() }]);
+  const removePaymentRow = (id) => setPayments(p => p.filter(x => x.id !== id));
+  const updatePaymentRow = (id, field, val) => setPayments(p => p.map(x => x.id === id ? { ...x, [field]: val } : x));
 
   const submit = () => {
     if (!selectedVehicle) { setError('Please select a vehicle.'); return; }
@@ -116,22 +129,39 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
       setError('Please fill in all required customer fields.');
       return;
     }
-    if (!sellingPrice) { setError('Please enter a selling price.'); return; }
+    if (!sellingPrice || netAmount <= 0) { setError('Please enter a valid selling price.'); return; }
+    if (!isFullCredit && payments.some(p => !p.amount || Number(p.amount) <= 0)) {
+      setError('Every payment row needs an amount greater than 0, or remove the row.');
+      return;
+    }
+    if (balance > 0 && !pendingDueDate) { setError('Please set an expected date for the remaining balance.'); return; }
     setError('');
+
+    const paymentType = isFullCredit ? 'Full Credit' : balance > 0 ? 'Partial Payment' : 'Full Payment';
+    const billing = {
+      totalAmount: netAmount,
+      payments: isFullCredit ? [] : payments.filter(p => Number(p.amount) > 0).map(p => ({ id: p.id, amount: Number(p.amount), mode: p.mode, date: p.date, note: '' })),
+      pendingDueDate: balance > 0 ? pendingDueDate : null,
+      paymentType,
+      financer: financer || null,
+    };
+
     const battStart = saleDate;
     const battEnd = addMonths(saleDate, BATTERY_WARRANTY_MONTHS);
     const chgEnd = addMonths(saleDate, CHARGER_WARRANTY_MONTHS);
     const newDb = {
       ...db,
       vehicles: db.vehicles.map(v => v.id === vehicleId ? { ...v, status: 'Sold', batteryWarranty: { start: battStart, end: battEnd }, chargerWarranty: { start: battStart, end: chgEnd } } : v),
-      sales: [...db.sales, { id: uid('SALE'), vehicleId, distributorId: session.distributorId, customer, kyc: { aadhaar: !!kyc.aadhaar, pan: !!kyc.pan, photo: !!kyc.photo, addressProof: !!kyc.addressProof, other: !!kyc.other }, sellingPrice: Number(sellingPrice), discount: Number(discount), invoiceNumber: invoice, saleDate }],
+      sales: [...db.sales, { id: uid('SALE'), vehicleId, distributorId: session.distributorId, customer, kyc: { aadhaar: !!kyc.aadhaar, pan: !!kyc.pan, photo: !!kyc.photo, addressProof: !!kyc.addressProof, other: !!kyc.other }, sellingPrice: Number(sellingPrice), discount: Number(discount), invoiceNumber: invoice, saleDate, billing }],
     };
-    addAudit(newDb, session.name, `Sold vehicle ${vehicleId} to ${customer.fullName} (Invoice ${invoice})`);
+    addAudit(newDb, session.name, `Sold vehicle ${vehicleId} to ${customer.fullName} (Invoice ${invoice})${balance > 0 ? ` · ${inr(balance)} pending till ${fmtDate(pendingDueDate)}` : ' · paid in full'}`);
     persist(newDb);
-    showToast(`Vehicle ${vehicleId} sold to ${customer.fullName}`);
+    showToast(`Vehicle ${vehicleId} sold to ${customer.fullName}${balance > 0 ? ` · ${inr(balance)} pending` : ''}`);
     setVehicleId(''); setCustomer({ fullName: '', fatherName: '', mobile: '', altMobile: '', address: '', city: '', state: '', pin: '', aadhaar: '', pan: '', dl: '' });
     setKyc({ aadhaar: null, pan: null, photo: null, addressProof: null, other: null });
     setSellingPrice(''); setDiscount('0'); setInvoice(genInvoice('SAL')); setSaleDate(todayStr());
+    setIsFullCredit(false); setPayments([{ id: uid('PMT'), amount: '', mode: 'Cash', date: todayStr() }]);
+    setPendingDueDate(addMonths(todayStr(), 1)); setFinancer('');
   };
 
   return (
@@ -201,6 +231,57 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
         </div>
       </div>
 
+      <div className="card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <span style={{ fontWeight: 700, fontSize: 13 }}>Billing &amp; Payment</span>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, margin: 0, cursor: 'pointer' }}>
+            <input type="checkbox" checked={isFullCredit} onChange={e => setIsFullCredit(e.target.checked)} style={{ width: 16 }} />
+            <span style={{ fontSize: 12, color: 'var(--text)' }}>Full Credit — financed elsewhere, no payment today</span>
+          </label>
+        </div>
+
+        {!isFullCredit && (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {payments.map((p, idx) => (
+                <div key={p.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 8, alignItems: 'end' }}>
+                  <div><label>{idx === 0 ? 'Amount Received (₹)' : `Split Payment ${idx + 1} (₹)`}</label><input type="number" value={p.amount} onChange={e => updatePaymentRow(p.id, 'amount', e.target.value)} /></div>
+                  <div><label>Mode</label>
+                    <select value={p.mode} onChange={e => updatePaymentRow(p.id, 'mode', e.target.value)}>{PAYMENT_MODES.map(m => <option key={m}>{m}</option>)}</select>
+                  </div>
+                  <div><label>Date</label><input type="date" value={p.date} onChange={e => updatePaymentRow(p.id, 'date', e.target.value)} /></div>
+                  <div>{payments.length > 1 && <button type="button" className="btn btn-sm btn-danger" onClick={() => removePaymentRow(p.id)}><Trash2 size={12} /></button>}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 10 }}>
+              <span onClick={addPaymentRow} style={{ color: 'var(--accent2)', cursor: 'pointer', fontWeight: 600, fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <Plus size={13} /> Add Split Payment (e.g. part UPI, part Cash)
+              </span>
+            </div>
+          </>
+        )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 16, padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 8 }}>
+          <div><div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Net Amount</div><div style={{ fontWeight: 700, fontSize: 14 }}>{inr(netAmount)}</div></div>
+          <div><div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Received Now</div><div style={{ fontWeight: 700, fontSize: 14, color: 'var(--success)' }}>{inr(receivedNow)}</div></div>
+          <div><div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Balance Due</div><div style={{ fontWeight: 700, fontSize: 14, color: balance > 0 ? 'var(--danger)' : 'var(--success)' }}>{inr(balance)}</div></div>
+        </div>
+
+        {balance > 0 && (
+          <div className="grid-2" style={{ marginTop: 14 }}>
+            <div><label>Expected Date for Remaining Payment</label><input type="date" value={pendingDueDate} onChange={e => setPendingDueDate(e.target.value)} /></div>
+            <div><label>Financed By / Note (optional)</label><input value={financer} onChange={e => setFinancer(e.target.value)} placeholder="e.g. Bajaj Finserv, or customer's own arrangement" /></div>
+          </div>
+        )}
+        {isFullCredit && (
+          <div style={{ marginTop: 14 }}>
+            <label>Financed By (optional)</label>
+            <input value={financer} onChange={e => setFinancer(e.target.value)} placeholder="e.g. HDFC Bank loan, family arrangement" />
+          </div>
+        )}
+      </div>
+
       {error && <div style={{ color: 'var(--danger)', fontSize: 12 }}>{error}</div>}
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <div className="btn btn-primary" onClick={submit}><Car size={14} /> Complete Sale</div>
@@ -212,10 +293,25 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
 
 
 
-export function SalesHistoryTab({ db, session }) {
+export function SalesHistoryTab({ db, persist, addAudit, showToast, session }) {
   const [viewing, setViewing] = useState(null);
+  const [collecting, setCollecting] = useState(null);
   const mySales = db.sales.filter(s => s.distributorId === session.distributorId).sort((a, b) => b.saleDate.localeCompare(a.saleDate));
-  const exportRows = () => mySales.map(s => ({ Invoice: s.invoiceNumber, 'Vehicle ID': s.vehicleId, Customer: s.customer.fullName, Mobile: s.customer.mobile, 'Selling Price': s.sellingPrice, Discount: s.discount, 'Sale Date': fmtDate(s.saleDate) }));
+  const exportRows = () => mySales.map(s => {
+    const t = billingTotals(billingOf(s));
+    return { Invoice: s.invoiceNumber, 'Vehicle ID': s.vehicleId, Customer: s.customer.fullName, Mobile: s.customer.mobile, 'Selling Price': s.sellingPrice, Discount: s.discount, Received: t.paid, Pending: t.pending, 'Sale Date': fmtDate(s.saleDate) };
+  });
+
+  const recordCollection = (sale, entry) => {
+    const billing = billingOf(sale);
+    const newBilling = { ...billing, payments: [...(billing.payments || []), { id: uid('PMT'), ...entry }] };
+    const newDb = { ...db, sales: db.sales.map(s => s.id === sale.id ? { ...s, billing: newBilling } : s) };
+    addAudit(newDb, session.name, `Collected ${inr(entry.amount)} from ${sale.customer.fullName} (Invoice ${sale.invoiceNumber})`);
+    persist(newDb);
+    showToast(`Payment of ${inr(entry.amount)} recorded`);
+    setCollecting(null);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
@@ -224,22 +320,36 @@ export function SalesHistoryTab({ db, session }) {
       </div>
       <div className="card scrollx">
         <table>
-          <thead><tr><th>Invoice</th><th>Vehicle ID</th><th>Customer</th><th>Mobile</th><th>Price</th><th>Discount</th><th>Date</th><th></th></tr></thead>
+          <thead><tr><th>Invoice</th><th>Vehicle ID</th><th>Customer</th><th>Mobile</th><th>Net Amount</th><th>Received</th><th>Pending</th><th>Due Date</th><th>Status</th><th></th><th></th></tr></thead>
           <tbody>
-            {mySales.map(s => (
-              <tr key={s.id}>
-                <td style={{ fontFamily: 'var(--font-mono)' }}>{s.invoiceNumber}</td>
-                <td style={{ fontFamily: 'var(--font-mono)' }}>{s.vehicleId}</td>
-                <td>{s.customer.fullName}</td><td>{s.customer.mobile}</td>
-                <td>{inr(s.sellingPrice)}</td><td>{inr(s.discount)}</td><td>{fmtDate(s.saleDate)}</td>
-                <td><span onClick={() => setViewing(s)} style={{ color: 'var(--accent2)', cursor: 'pointer', fontWeight: 600, fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}><ExternalLink size={12} /> View Details</span></td>
-              </tr>
-            ))}
-            {mySales.length === 0 && <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No sales recorded yet.</td></tr>}
+            {mySales.map(s => {
+              const billing = billingOf(s);
+              const t = billingTotals(billing);
+              return (
+                <tr key={s.id}>
+                  <td style={{ fontFamily: 'var(--font-mono)' }}>{s.invoiceNumber}</td>
+                  <td style={{ fontFamily: 'var(--font-mono)' }}>{s.vehicleId}</td>
+                  <td>{s.customer.fullName}</td><td>{s.customer.mobile}</td>
+                  <td>{inr(billing.totalAmount)}</td>
+                  <td>{inr(t.paid)}</td>
+                  <td style={{ fontWeight: t.pending > 0 ? 700 : 400, color: t.pending > 0 ? 'var(--danger)' : 'var(--text)' }}>{inr(t.pending)}</td>
+                  <td>{billing.pendingDueDate ? fmtDate(billing.pendingDueDate) : '—'}</td>
+                  <td>
+                    {t.status === 'Paid' && <span className="badge" style={{ background: '#33D69F22', color: 'var(--success)' }}>Paid</span>}
+                    {t.status === 'Partially Paid' && <span className="badge" style={{ background: t.overdue ? '#FF5C5C22' : '#FFB02022', color: t.overdue ? 'var(--danger)' : 'var(--warning)' }}>{t.overdue ? 'Overdue' : 'Partially Paid'}</span>}
+                    {t.status === 'Pending' && <span className="badge" style={{ background: t.overdue ? '#FF5C5C22' : '#FFB02022', color: t.overdue ? 'var(--danger)' : 'var(--warning)' }}>{t.overdue ? 'Overdue' : 'Pending'}</span>}
+                  </td>
+                  <td>{t.pending > 0 && <button className="btn btn-sm" onClick={() => setCollecting(s)}><Wallet size={12} /> Collect</button>}</td>
+                  <td><span onClick={() => setViewing(s)} style={{ color: 'var(--accent2)', cursor: 'pointer', fontWeight: 600, fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}><ExternalLink size={12} /> View Details</span></td>
+                </tr>
+              );
+            })}
+            {mySales.length === 0 && <tr><td colSpan={11} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No sales recorded yet.</td></tr>}
           </tbody>
         </table>
       </div>
       {viewing && <CustomerDetailModal db={db} sale={viewing} onClose={() => setViewing(null)} />}
+      {collecting && <RecordCustomerPaymentModal sale={collecting} onClose={() => setCollecting(null)} onSave={(entry) => recordCollection(collecting, entry)} />}
     </div>
   );
 }
