@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Moonvolt Vehicle Distribution System",
-  description: "Vehicle Distribution System",
+  description: "Vehicle Distribution System CRM",
 };
 
 export default function RootLayout({ children }) {
