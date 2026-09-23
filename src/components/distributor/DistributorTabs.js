@@ -190,7 +190,7 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
         </div>
         <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Mobile Number</label><input value={customer.mobile} onChange={e => setC('mobile', e.target.value)} /></div>
-          <div><label>Alternate Mobile</label><input value={customer.altMobile} onChange={e => setC('altMobile', e.target.value)} /></div>
+          <div><label>Alternate Mobile (optional)</label><input value={customer.altMobile} onChange={e => setC('altMobile', e.target.value)} placeholder="Optional" /></div>
         </div>
         <div style={{ marginTop: 10 }}><label>Address</label><input value={customer.address} onChange={e => setC('address', e.target.value)} /></div>
         <div className="grid-3" style={{ marginTop: 10 }}>
@@ -200,22 +200,22 @@ export function SellTab({ db, persist, addAudit, showToast, session }) {
         </div>
         <div className="grid-3" style={{ marginTop: 10 }}>
           <div><label>Aadhaar Number</label><input value={customer.aadhaar} onChange={e => setC('aadhaar', e.target.value)} /></div>
-          <div><label>PAN Number (optional)</label><input value={customer.pan} onChange={e => setC('pan', e.target.value)} /></div>
-          <div><label>Driving License (optional)</label><input value={customer.dl} onChange={e => setC('dl', e.target.value)} /></div>
+          <div><label>PAN Number (optional)</label><input value={customer.pan} onChange={e => setC('pan', e.target.value)} placeholder="Optional" /></div>
+          <div><label>Driving License (optional)</label><input value={customer.dl} onChange={e => setC('dl', e.target.value)} placeholder="Optional" /></div>
         </div>
       </div>
 
       <div className="card">
-        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>KYC Documents</div>
-        <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 10 }}>File contents are not stored in this demo — only the filename is recorded.</div>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>KYC Documents (All Optional)</div>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>All document uploads are optional — submit documents if available.</div>
         <div className="grid-3">
-          <div><label>Aadhaar</label><input type="file" onChange={e => setKycFile('aadhaar', e)} /></div>
-          <div><label>PAN</label><input type="file" onChange={e => setKycFile('pan', e)} /></div>
-          <div><label>Photograph</label><input type="file" onChange={e => setKycFile('photo', e)} /></div>
+          <div><label>Aadhaar Document (optional)</label><input type="file" onChange={e => setKycFile('aadhaar', e)} /></div>
+          <div><label>PAN Document (optional)</label><input type="file" onChange={e => setKycFile('pan', e)} /></div>
+          <div><label>Photograph (optional)</label><input type="file" onChange={e => setKycFile('photo', e)} /></div>
         </div>
         <div className="grid-2" style={{ marginTop: 10 }}>
-          <div><label>Address Proof</label><input type="file" onChange={e => setKycFile('addressProof', e)} /></div>
-          <div><label>Other KYC Document</label><input type="file" onChange={e => setKycFile('other', e)} /></div>
+          <div><label>Address Proof (optional)</label><input type="file" onChange={e => setKycFile('addressProof', e)} /></div>
+          <div><label>Other KYC Document (optional)</label><input type="file" onChange={e => setKycFile('other', e)} /></div>
         </div>
       </div>
 
