@@ -166,6 +166,7 @@ export function AdminDashboard({ db }) {
 export function InventoryTab({ db, persist, addAudit, showToast }) {
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [filterCat, setFilterCat] = useState('All');
   const [filterModel, setFilterModel] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
@@ -201,6 +202,17 @@ export function InventoryTab({ db, persist, addAudit, showToast }) {
     setEditing(null);
   };
 
+  const deleteVehicle = (vehicle) => {
+    const newDb = {
+      ...db,
+      vehicles: db.vehicles.filter(v => v.id !== vehicle.id)
+    };
+    addAudit(newDb, 'Super Admin', `Deleted vehicle ${vehicle.id} (${vehicle.model})`);
+    persist(newDb);
+    showToast(`Vehicle ${vehicle.id} deleted from inventory`);
+    setConfirmDelete(null);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
@@ -230,7 +242,7 @@ export function InventoryTab({ db, persist, addAudit, showToast }) {
 
       <div className="card scrollx">
         <table>
-          <thead><tr><th>Vehicle ID</th><th>Category</th><th>Model</th><th>Chassis No.</th><th>Motor No.</th><th>Battery</th><th>Charger</th><th>Mfg Date</th><th>Status</th><th>Distributor</th><th>Warranty</th><th></th></tr></thead>
+          <thead><tr><th>Vehicle ID</th><th>Category</th><th>Model</th><th>Chassis No.</th><th>Motor No.</th><th>Battery</th><th>Charger</th><th>Mfg Date</th><th>Status</th><th>Distributor</th><th>Warranty</th><th>Actions</th></tr></thead>
           <tbody>
             {filtered.map(v => (
               <tr key={v.id}>
@@ -245,7 +257,12 @@ export function InventoryTab({ db, persist, addAudit, showToast }) {
                 <td><StatusBadge status={v.status} /></td>
                 <td>{v.distributorId ? (db.distributors.find(d => d.id === v.distributorId)?.shopName || v.distributorId) : '—'}</td>
                 <td>{v.batteryWarranty ? <span className="badge" style={{ background: '#33D69F22', color: 'var(--success)' }}>Set</span> : <span className="badge" style={{ background: 'var(--surface-2)', color: 'var(--text-dim)' }}>None</span>}</td>
-                <td><button className="btn btn-sm" onClick={() => setEditing(v)}><Edit2 size={12} /> Edit</button></td>
+                <td>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button className="btn btn-sm" onClick={() => setEditing(v)}><Edit2 size={12} /> Edit</button>
+                    <button className="btn btn-sm btn-danger" onClick={() => setConfirmDelete(v)}><Trash2 size={12} /> Delete</button>
+                  </div>
+                </td>
               </tr>
             ))}
             {filtered.length === 0 && <tr><td colSpan={12} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No vehicles match your filters.</td></tr>}
@@ -255,6 +272,22 @@ export function InventoryTab({ db, persist, addAudit, showToast }) {
 
       {showAdd && <AddVehicleModal onClose={() => setShowAdd(false)} onSave={addVehicle} />}
       {editing && <EditVehicleModal vehicle={editing} onClose={() => setEditing(null)} onSave={updateVehicle} />}
+
+      {confirmDelete && (
+        <Modal title="Delete Vehicle" onClose={() => setConfirmDelete(null)} width={420}>
+          <div>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+              Are you sure you want to permanently delete vehicle <b>{confirmDelete.id}</b> ({confirmDelete.model}) from inventory? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
+              <button className="btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
+              <button className="btn btn-danger" onClick={() => deleteVehicle(confirmDelete)}>
+                <Trash2 size={14} /> Delete Vehicle
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -429,7 +462,7 @@ export function DistributorsTab({ db, persist, addAudit, showToast }) {
                 <td>{d.ownerName}</td>
                 <td>{d.mobile}</td>
                 <td>{d.email}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{d.gst}</td>
+                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>{d.gst || '—'}</td>
                 <td>{stockOf(d.id)}</td>
                 <td>{soldOf(d.id)}</td>
                 <td><span className="badge" style={{ background: d.status === 'active' ? '#33D69F22' : '#FF5C5C22', color: d.status === 'active' ? 'var(--success)' : 'var(--danger)' }}>{d.status}</span></td>
@@ -471,8 +504,8 @@ export function DistributorModal({ mode, data, onClose, onSave }) {
   const [error, setError] = useState('');
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const submit = () => {
-    if (!form.shopName || !form.ownerName || !form.mobile || !form.gst || !form.address || !form.email || !form.username || !form.password) {
-      setError('Please fill in all fields.');
+    if (!form.shopName || !form.ownerName || !form.mobile || !form.address || !form.email || !form.username || !form.password) {
+      setError('Please fill in required fields (Shop name, Owner, Mobile, Address, Email, Username, Password).');
       return;
     }
     onSave(form);
@@ -487,7 +520,7 @@ export function DistributorModal({ mode, data, onClose, onSave }) {
         </div>
         <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Mobile Number</label><input value={form.mobile} onChange={e => set('mobile', e.target.value)} /></div>
-          <div><label>GST Number</label><input value={form.gst} onChange={e => set('gst', e.target.value)} /></div>
+          <div><label>GST Number (optional)</label><input value={form.gst} onChange={e => set('gst', e.target.value)} placeholder="Optional" /></div>
         </div>
         <div style={{ marginTop: 10 }}><label>Address</label><input value={form.address} onChange={e => set('address', e.target.value)} /></div>
         <div className="grid-2" style={{ marginTop: 10 }}>

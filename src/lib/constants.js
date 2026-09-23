@@ -1,5 +1,5 @@
 export const CATEGORIES = {
-  Passenger: ['42', '46', '48'],
+  Passenger: ['39', '42', '46', '48'],
   Loader: ['Rajans', 'Rapid', 'MiniMeter'],
 };
 export const ALL_MODELS = Object.entries(CATEGORIES).flatMap(([cat, models]) => models.map(m => ({ cat, model: m })));
