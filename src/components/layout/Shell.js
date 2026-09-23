@@ -59,48 +59,60 @@ export function Shell({ theme, setTheme, session, setSession, db, persist, addAu
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar */}
       <div style={{
-        width: 236, flexShrink: 0, borderRight: '1px solid var(--border)', background: 'var(--surface)',
-        position: sidebarOpen ? 'fixed' : 'relative', left: sidebarOpen ? 0 : undefined, top: sidebarOpen ? 0 : undefined, zIndex: 50, height: '100vh', display: sidebarOpen ? 'block' : undefined,
+        width: 248, flexShrink: 0, borderRight: '1px solid var(--border)', background: 'var(--surface)',
+        position: sidebarOpen ? 'fixed' : 'sticky', left: 0, top: 0, zIndex: 100, height: '100vh',
+        display: 'flex', flexDirection: 'column', transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
       }} className={sidebarOpen ? '' : 'hide-mobile-sidebar'}>
-        <div style={{ padding: '20px 18px', display: 'flex', alignItems: 'center', gap: 9, borderBottom: '1px solid var(--border)' }}>
-          <span style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg, var(--accent1), var(--accent2))', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Car size={16} color="#fff" />
-          </span>
-          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 16 }}>MoonVolt VDMS</span>
+        <div style={{ padding: '18px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--accent1), var(--accent2))', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px var(--accent-glow)' }}>
+              <Car size={18} color="#fff" />
+            </span>
+            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em' }}>MoonVolt VDMS</span>
+          </div>
+          <button className="btn btn-sm mobile-menu-btn" onClick={() => setSidebarOpen(false)} style={{ padding: 4 }}>
+            <X size={16} />
+          </button>
         </div>
-        <div style={{ padding: 12 }}>
+
+        <div style={{ padding: '12px 10px', flex: 1, overflowY: 'auto' }}>
           {tabs.map(t => {
             const Icon = t.icon;
             const active = activeTab === t.id;
             return (
               <div key={t.id} onClick={() => { setActiveTab(t.id); setSidebarOpen(false); }}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 9, cursor: 'pointer',
-                  marginBottom: 3, fontSize: 13, fontWeight: 600,
-                  background: active ? 'var(--surface-2)' : 'transparent',
-                  color: active ? 'var(--text)' : 'var(--text-muted)',
-                  borderLeft: active ? '3px solid var(--accent2)' : '3px solid transparent',
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, cursor: 'pointer',
+                  marginBottom: 4, fontSize: 13, fontWeight: active ? 700 : 500,
+                  background: active ? 'linear-gradient(135deg, var(--accent1), var(--accent2))' : 'transparent',
+                  color: active ? '#ffffff' : 'var(--text-muted)',
+                  boxShadow: active ? '0 4px 12px var(--accent-glow)' : 'none',
+                  transition: 'all 0.15s ease',
                 }}>
-                <Icon size={16} />{t.label}
+                <Icon size={16} color={active ? '#ffffff' : 'var(--text-muted)'} />
+                <span>{t.label}</span>
               </div>
             );
           })}
         </div>
-        <div style={{ position: 'absolute', bottom: 0, width: '100%', padding: 16, borderTop: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-            <UserCircle2 size={22} color="var(--text-muted)" />
-            <div style={{ minWidth: 0 }}>
+
+        <div style={{ padding: 14, borderTop: '1px solid var(--border)', background: 'var(--surface-2)', flexShrink: 0, margin: 10, borderRadius: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <UserCircle2 size={20} color="var(--accent2)" />
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ fontSize: 12, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{session.name}</div>
-              <div style={{ fontSize: 10, color: 'var(--text-dim)' }}>{isAdmin ? 'Super Admin' : 'Distributor'}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>{isAdmin ? 'Super Admin' : 'Distributor'}</div>
             </div>
           </div>
           <button className="btn btn-sm" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setSession(null)}>
-            <LogOut size={14} /> Logout
+            <LogOut size={13} /> Logout
           </button>
         </div>
       </div>
 
-      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 40 }} />}
+      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 90 }} />}
 
       {/* Main */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
@@ -108,7 +120,7 @@ export function Shell({ theme, setTheme, session, setSession, db, persist, addAu
           theme={theme} setTheme={setTheme} session={session} tabs={tabs} activeTab={activeTab}
           notifications={notifications} setSidebarOpen={setSidebarOpen}
         />
-        <div style={{ padding: 20, flex: 1, minWidth: 0 }}>
+        <div style={{ padding: 20, flex: 1, minWidth: 0 }} className="main-content-padding">
           {activeTab === 'dashboard' && isAdmin && <AdminDashboard db={db} />}
           {activeTab === 'dashboard' && !isAdmin && <DistributorDashboard db={db} session={session} />}
           {activeTab === 'inventory' && <InventoryTab db={db} persist={persist} addAudit={addAudit} showToast={showToast} />}
@@ -195,22 +207,31 @@ export function TopBar({ theme, setTheme, session, tabs, activeTab, notification
   const [openNotif, setOpenNotif] = useState(false);
   const label = tabs.find(t => t.id === activeTab)?.label || '';
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface)', position: 'sticky', top: 0, zIndex: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <button className="btn btn-sm mobile-menu-btn" onClick={() => setSidebarOpen(s => !s)}><Menu size={15} /></button>
-        <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 17 }}>{label}</span>
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px',
+      borderBottom: '1px solid var(--border)', background: 'var(--surface)', backdropFilter: 'blur(12px)',
+      position: 'sticky', top: 0, zIndex: 30,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button className="btn btn-sm mobile-menu-btn" onClick={() => setSidebarOpen(s => !s)} style={{ padding: '6px 8px' }}>
+          <Menu size={16} />
+        </button>
+        <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em' }}>{label}</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
-        <button className="btn btn-sm" onClick={() => setOpenNotif(o => !o)} style={{ position: 'relative' }}>
-          <Bell size={14} />
+        <button className="btn btn-sm" onClick={() => setOpenNotif(o => !o)} style={{ position: 'relative', padding: '6px 10px' }}>
+          <Bell size={15} />
           {notifications.length > 0 && (
-            <span style={{ position: 'absolute', top: -5, right: -5, background: 'var(--danger)', color: '#fff', borderRadius: 10, fontSize: 9, padding: '1px 5px', fontWeight: 700 }}>{notifications.length}</span>
+            <span style={{ position: 'absolute', top: -4, right: -4, background: 'var(--danger)', color: '#fff', borderRadius: 10, fontSize: 9, padding: '2px 5px', fontWeight: 800 }}>{notifications.length}</span>
           )}
         </button>
         {openNotif && (
-          <div className="card" style={{ position: 'absolute', top: 40, right: 0, width: 320, maxHeight: 380, overflowY: 'auto', zIndex: 60, padding: 10 }}>
-            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Notifications</div>
-            {notifications.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>You're all caught up.</div>}
+          <div className="card" style={{ position: 'absolute', top: 42, right: 0, width: 320, maxHeight: 380, overflowY: 'auto', zIndex: 60, padding: 12, boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>Notifications</span>
+              <span className="badge" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}>{notifications.length}</span>
+            </div>
+            {notifications.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '10px 0' }}>You're all caught up.</div>}
             {notifications.map((n, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, padding: '8px 0', borderBottom: i < notifications.length - 1 ? '1px solid var(--border)' : 'none' }}>
                 <AlertTriangle size={14} color={n.type === 'danger' ? 'var(--danger)' : n.type === 'warning' ? 'var(--warning)' : 'var(--info)'} style={{ flexShrink: 0, marginTop: 2 }} />
@@ -219,10 +240,11 @@ export function TopBar({ theme, setTheme, session, tabs, activeTab, notification
             ))}
           </div>
         )}
-        <button className="btn btn-sm" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}>
-          {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+        <button className="btn btn-sm" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} style={{ padding: '6px 10px' }}>
+          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
         </button>
       </div>
     </div>
   );
 }
+
