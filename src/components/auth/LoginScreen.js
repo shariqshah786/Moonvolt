@@ -95,9 +95,8 @@ export function LoginScreen({ theme, setTheme, db, onLogin }) {
               </div>
               {error && <div style={{ color: 'var(--danger)', fontSize: 12, marginBottom: 12 }}>{error}</div>}
               <div className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: 11 }} onClick={handleLogin}>Sign in</div>
-              <div style={{ marginTop: 14, fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.6 }}>
-                Demo credentials — Admin: <code style={{ fontFamily: 'var(--font-mono)' }}>admin / admin123</code><br />
-                Distributor: <code style={{ fontFamily: 'var(--font-mono)' }}>sunrise / sunrise123</code>
+              <div style={{ marginTop: 14, fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.6, textAlign: 'center' }}>
+                Default Super Admin Login: <code style={{ fontFamily: 'var(--font-mono)' }}>admin / admin123</code>
               </div>
             </div>
           ) : (

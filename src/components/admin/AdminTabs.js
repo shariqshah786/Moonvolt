@@ -21,7 +21,7 @@ export function AdminDashboard({ db }) {
   const totalSupplied = db.vehicles.filter(v => v.status === 'Sent to Distributor').length;
   const lowStockModels = ALL_MODELS.filter(({ model }) => {
     const c = db.vehicles.filter(v => v.model === model && v.status === 'In Stock').length;
-    return c < LOW_STOCK_THRESHOLD;
+    return c > 0 && c < LOW_STOCK_THRESHOLD;
   });
   const activeWarranty = db.vehicles.filter(v => v.status === 'Sold').length;
   const expiredWarranty = db.vehicles.filter(v => v.status === 'Warranty Expired').length;
@@ -442,6 +442,9 @@ export function DistributorsTab({ db, persist, addAudit, showToast }) {
                 </td>
               </tr>
             ))}
+            {db.distributors.length === 0 && (
+              <tr><td colSpan={9} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 20 }}>No distributors registered yet. Click "Add Distributor" to onboard one.</td></tr>
+            )}
           </tbody>
         </table>
       </div>
