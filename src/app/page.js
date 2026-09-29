@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Car, Sparkles, ShieldCheck } from 'lucide-react';
 import { seedDB } from '../lib/seed';
 import { LoginScreen } from '../components/auth/LoginScreen';
 import { Shell } from '../components/layout/Shell';
 import { rootVars, globalCss } from '../lib/theme';
 import { uid } from '../lib/helpers';
-
-
 
 export default function App() {
   const [db, setDb] = useState(null);
@@ -29,7 +28,9 @@ export default function App() {
           setDb(data);
           try { localStorage.setItem('vdms_local_cache', JSON.stringify(data)); } catch (_) {}
         }
-        if (isInitial) setLoading(false);
+        if (isInitial) {
+          setTimeout(() => setLoading(false), 800); // smooth splash loader display
+        }
         return true;
       }
       throw new Error(data.error || 'Invalid DB format');
@@ -42,7 +43,7 @@ export default function App() {
           if (cached) local = JSON.parse(cached);
         } catch (_) {}
         setDb(local || seedDB());
-        setLoading(false);
+        setTimeout(() => setLoading(false), 800);
       }
       return false;
     }
@@ -91,9 +92,60 @@ export default function App() {
 
   if (loading) {
     return (
-      <div style={{ ...rootVars(theme), minHeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', fontFamily: 'var(--font-body)' }}>
+      <div style={{
+        ...rootVars(theme), minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        background: 'var(--bg)', fontFamily: 'var(--font-body)', position: 'relative', overflow: 'hidden', padding: 20
+      }}>
         <style>{globalCss}</style>
-        <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>Connecting to Real-time Database…</div>
+        {/* Glow ambient background aura */}
+        <div style={{
+          position: 'absolute', width: 380, height: 380, borderRadius: '50%',
+          background: 'radial-gradient(circle, var(--accent2) 0%, rgba(0,0,0,0) 70%)',
+          opacity: 0.22, filter: 'blur(60px)', pointerEvents: 'none', animation: 'pulseGlow 3s ease-in-out infinite alternate'
+        }} />
+
+        <div style={{ textAlign: 'center', zIndex: 10, maxWidth: 360, width: '100%' }}>
+          {/* Animated EV Emblem */}
+          <div style={{ position: 'relative', width: 76, height: 76, margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{
+              position: 'absolute', inset: -8, borderRadius: 24,
+              background: 'linear-gradient(135deg, var(--accent1), var(--accent2))', opacity: 0.45, filter: 'blur(12px)',
+              animation: 'pulseGlow 2s infinite alternate'
+            }} />
+            <div style={{
+              width: 76, height: 76, borderRadius: 22,
+              background: 'linear-gradient(135deg, var(--accent1), var(--accent2))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 10px 30px var(--accent-glow)', position: 'relative'
+            }}>
+              <Car size={38} color="#ffffff" style={{ animation: 'floatLogo 2.5s ease-in-out infinite alternate' }} />
+            </div>
+          </div>
+
+          <div style={{ fontFamily: 'var(--font-heading)', fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 6, color: 'var(--text)' }}>
+            MoonVolt VDMS
+          </div>
+          <div style={{ color: 'var(--text-muted)', fontSize: 13, fontWeight: 500, marginBottom: 28 }}>
+            Vehicle Distribution Management System
+          </div>
+
+          {/* Glowing Animated Loading Track */}
+          <div style={{
+            width: '100%', height: 6, borderRadius: 10, background: 'var(--surface-2)',
+            overflow: 'hidden', position: 'relative', border: '1px solid var(--border)'
+          }}>
+            <div style={{
+              height: '100%', width: '100%', borderRadius: 10,
+              background: 'linear-gradient(90deg, var(--accent1), var(--accent2), var(--info))',
+              animation: 'loadingProgress 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite'
+            }} />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16, color: 'var(--text-dim)', fontSize: 12, fontWeight: 600 }}>
+            <Sparkles size={14} color="var(--accent2)" className="pulse-icon" />
+            <span>Connecting to Real-time MongoDB Engine…</span>
+          </div>
+        </div>
       </div>
     );
   }

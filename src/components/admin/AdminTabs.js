@@ -54,7 +54,7 @@ export function AdminDashboard({ db }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14 }} className="stat-card-grid">
         <StatCard label="Total in Stock" value={totalStock} icon={Package} accent="#33D69F" />
         <StatCard label="Total Sold" value={totalSold} icon={TrendingUp} accent="#FFB020" />
         <StatCard label="Supplied to Distributors" value={totalSupplied} icon={Truck} accent="#4FA8FF" />
@@ -74,7 +74,7 @@ export function AdminDashboard({ db }) {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 14 }}>
+      <div className="admin-charts-grid">
         <div className="card">
           <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Stock by Model</div>
           <ResponsiveContainer width="100%" height={260}>
@@ -215,7 +215,7 @@ export function InventoryTab({ db, persist, addAudit, showToast }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10 }} className="stat-card-grid">
         {summary.map(s => (
           <div key={s.model} className="card" style={{ padding: 12 }}>
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{s.cat} · {s.model}</div>
@@ -224,16 +224,16 @@ export function InventoryTab({ db, persist, addAudit, showToast }) {
         ))}
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <input placeholder="Search vehicle / chassis / motor no." value={q} onChange={e => setQ(e.target.value)} style={{ width: 220 }} />
-          <select value={filterCat} onChange={e => { setFilterCat(e.target.value); setFilterModel('All'); }} style={{ width: 140 }}>
+      <div className="filter-bar-responsive">
+        <div className="filter-inputs-group">
+          <input placeholder="Search vehicle / chassis / motor no." value={q} onChange={e => setQ(e.target.value)} style={{ flex: '1 1 200px' }} />
+          <select value={filterCat} onChange={e => { setFilterCat(e.target.value); setFilterModel('All'); }} style={{ flex: '1 1 120px' }}>
             <option>All</option>{Object.keys(CATEGORIES).map(c => <option key={c}>{c}</option>)}
           </select>
-          <select value={filterModel} onChange={e => setFilterModel(e.target.value)} style={{ width: 140 }}>
+          <select value={filterModel} onChange={e => setFilterModel(e.target.value)} style={{ flex: '1 1 120px' }}>
             <option>All</option>{(filterCat === 'All' ? ALL_MODELS.map(m => m.model) : CATEGORIES[filterCat]).map(m => <option key={m}>{m}</option>)}
           </select>
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ width: 160 }}>
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ flex: '1 1 140px' }}>
             <option>All</option>{STATUSES.map(s => <option key={s}>{s}</option>)}
           </select>
         </div>

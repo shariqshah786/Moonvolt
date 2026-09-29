@@ -57,6 +57,8 @@ html, body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 * { box-sizing: border-box; }
@@ -124,6 +126,7 @@ tr:hover td { background: var(--surface-hover); }
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   user-select: none;
+  min-height: 38px;
 }
 .btn:hover {
   background: var(--surface-hover);
@@ -152,7 +155,7 @@ tr:hover td { background: var(--surface-hover); }
   color: #fff;
   border-color: var(--danger);
 }
-.btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; min-height: 32px; }
 
 .card {
   background: var(--surface);
@@ -174,8 +177,10 @@ tr:hover td { background: var(--surface-hover); }
 
 .scrollx {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: 12px;
   border: 1px solid var(--border);
+  max-width: 100%;
 }
 
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -183,12 +188,83 @@ tr:hover td { background: var(--surface-hover); }
 .admin-charts-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
 .mobile-menu-btn { display: none !important; }
 
+/* Responsive Filter & Action Layout */
+.filter-bar-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.filter-inputs-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  flex: 1;
+}
+
+/* Animations for Start Loader */
+@keyframes loadingProgress {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(-20%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(0.96); opacity: 0.3; }
+  100% { transform: scale(1.08); opacity: 0.65; }
+}
+
+@keyframes floatLogo {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-5px); }
+}
+
+/* Comprehensive Responsive Breakpoints */
 @media (max-width: 860px) {
   .hide-mobile { display: none !important; }
   .hide-mobile-sidebar { transform: translateX(-100%) !important; }
   .mobile-menu-btn { display: inline-flex !important; }
   .grid-2, .grid-3, .admin-charts-grid { grid-template-columns: 1fr !important; }
   .main-content-padding { padding: 14px !important; }
+  .card { padding: 16px; }
+}
+
+@media (max-width: 640px) {
+  .filter-bar-responsive {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-inputs-group {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .filter-inputs-group input, .filter-inputs-group select {
+    width: 100% !important;
+  }
+  .stat-card-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  th, td {
+    padding: 9px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .stat-card-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .main-content-padding { padding: 10px !important; }
+  .card { padding: 14px; border-radius: 12px; }
+  .btn { width: 100%; justify-content: center; }
+  .btn-sm { width: auto; }
 }
 `;
+
 
