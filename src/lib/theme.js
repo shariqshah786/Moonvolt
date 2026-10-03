@@ -222,7 +222,7 @@ tr:hover td { background: var(--surface-hover); }
   flex: 1;
 }
 
-/* Animations for Start Loader */
+/* Animations */
 @keyframes loadingProgress {
   0% { transform: translateX(-100%); }
   50% { transform: translateX(-20%); }
@@ -237,6 +237,38 @@ tr:hover td { background: var(--surface-hover); }
 @keyframes floatLogo {
   0% { transform: translateY(0px); }
   100% { transform: translateY(-5px); }
+}
+
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); opacity: 0.8; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Mobile Bottom Navigation Bar */
+.mobile-bottom-nav {
+  display: none;
+}
+
+/* Touch & Micro-interaction Enhancements */
+.card {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--border);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.btn {
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn:active {
+  transform: scale(0.97);
 }
 
 /* Responsive Breakpoints */
@@ -256,9 +288,11 @@ tr:hover td { background: var(--surface-hover); }
     max-width: 85vw !important;
     height: 100vh !important;
     height: 100dvh !important;
-    z-index: 200 !important;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45) !important;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s ease !important;
+    z-index: 250 !important;
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5) !important;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.28s ease !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
   .hide-mobile-sidebar {
     transform: translateX(-100%) !important;
@@ -275,26 +309,88 @@ tr:hover td { background: var(--surface-hover); }
     grid-template-columns: 1fr !important;
   }
   .main-content-padding {
-    padding: 14px !important;
+    padding: 16px 14px 84px !important;
   }
   .card {
     padding: 16px !important;
+    border-radius: 16px !important;
   }
   .stat-card-grid {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
-    gap: 10px !important;
+    gap: 12px !important;
+  }
+
+  /* Sleek Floating Bottom Navigation */
+  .mobile-bottom-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    z-index: 95;
+    padding: 0 8px calc(env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
+  }
+  .mobile-bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    height: 100%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    padding: 6px 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-bottom-nav-item.active {
+    color: var(--text);
+  }
+  .mobile-bottom-nav-item.active .mobile-nav-icon-wrap {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #ffffff;
+    box-shadow: 0 2px 10px var(--accent-glow);
+    transform: translateY(-2px);
+  }
+  .mobile-nav-icon-wrap {
+    width: 36px;
+    height: 28px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-muted);
   }
 }
 
 @media (max-width: 640px) {
+  .topbar-subtext {
+    display: none !important;
+  }
   .filter-bar-responsive {
     flex-direction: column !important;
     align-items: stretch !important;
+    gap: 8px !important;
   }
   .filter-inputs-group {
     flex-direction: column !important;
     align-items: stretch !important;
     width: 100% !important;
+    gap: 8px !important;
   }
   .filter-inputs-group input,
   .filter-inputs-group select {
@@ -302,18 +398,48 @@ tr:hover td { background: var(--surface-hover); }
   }
   .stat-card-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 8px !important;
+    gap: 10px !important;
   }
   th, td {
-    padding: 8px 10px !important;
+    padding: 9px 12px !important;
     font-size: 12px !important;
   }
   .main-content-padding {
-    padding: 12px 10px !important;
+    padding: 12px 12px 88px !important;
   }
   .card {
     padding: 14px !important;
-    border-radius: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  /* Modal Bottom Sheet */
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+  .modal-card {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-top-left-radius: 24px !important;
+    border-top-right-radius: 24px !important;
+    max-height: 88vh !important;
+    padding: 16px 16px 36px !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    animation: sheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  .modal-grabber {
+    display: block !important;
+  }
+  .notif-dropdown {
+    position: fixed !important;
+    top: 60px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    z-index: 260 !important;
   }
 }
 
@@ -322,14 +448,14 @@ tr:hover td { background: var(--surface-hover); }
     grid-template-columns: 1fr !important;
   }
   .main-content-padding {
-    padding: 8px !important;
+    padding: 10px 10px 88px !important;
   }
   .card {
     padding: 12px !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
   }
   th, td {
-    padding: 7px 8px !important;
+    padding: 8px 10px !important;
     font-size: 11px !important;
   }
 }

@@ -54,6 +54,32 @@ export function AdminDashboard({ db }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div className="card" style={{
+        background: 'linear-gradient(135deg, rgba(37,99,235,0.12), rgba(79,70,229,0.06))',
+        border: '1px solid rgba(99,102,241,0.25)',
+        padding: '14px 18px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{
+            width: 38, height: 38, borderRadius: 11,
+            background: 'linear-gradient(135deg, var(--accent1), var(--accent2))',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 12px var(--accent-glow)', flexShrink: 0
+          }}>
+            <Sparkles size={19} color="#fff" />
+          </span>
+          <div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 16 }}>MoonVolt Fleet Overview</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Real-time inventory and distribution metrics</div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, background: 'var(--surface)', padding: '5px 12px', borderRadius: 20, border: '1px solid var(--border)' }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--success)', display: 'inline-block', boxShadow: '0 0 6px var(--success)' }} />
+          <span style={{ fontWeight: 600 }}>MongoDB Live Sync</span>
+        </div>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14 }} className="stat-card-grid">
         <StatCard label="Total in Stock" value={totalStock} icon={Package} accent="#33D69F" />
         <StatCard label="Total Sold" value={totalSold} icon={TrendingUp} accent="#FFB020" />

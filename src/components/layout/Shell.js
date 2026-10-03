@@ -159,6 +159,45 @@ export function Shell({ theme, setTheme, session, setSession, db, persist, addAu
         </div>
       </div>
 
+      {/* Mobile Floating Glass Bottom Nav */}
+      <div className="mobile-bottom-nav">
+        {(isAdmin ? [
+          { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+          { id: 'inventory', label: 'Inventory', icon: Package },
+          { id: 'distributors', label: 'Distributors', icon: Users },
+          { id: 'supply', label: 'Supply', icon: Truck },
+          { id: 'more', label: 'Menu', icon: Menu, isAction: true },
+        ] : [
+          { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+          { id: 'myinventory', label: 'Inventory', icon: Package },
+          { id: 'sell', label: 'Sell', icon: Car },
+          { id: 'finance', label: 'Finance', icon: IndianRupee },
+          { id: 'more', label: 'Menu', icon: Menu, isAction: true },
+        ]).map(bt => {
+          const Icon = bt.icon;
+          const active = !bt.isAction && activeTab === bt.id;
+          return (
+            <button
+              key={bt.id}
+              className={`mobile-bottom-nav-item ${active ? 'active' : ''}`}
+              onClick={() => {
+                if (bt.isAction) {
+                  setSidebarOpen(true);
+                } else {
+                  setActiveTab(bt.id);
+                  setSidebarOpen(false);
+                }
+              }}
+            >
+              <div className="mobile-nav-icon-wrap">
+                <Icon size={18} />
+              </div>
+              <span>{bt.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {toast && (
         <div style={{
           position: 'fixed', bottom: 20, right: 20, zIndex: 100, padding: '12px 18px', borderRadius: 10,
@@ -218,42 +257,61 @@ export function buildNotifications(db, session) {
 
 export function TopBar({ theme, setTheme, session, tabs, activeTab, notifications, setSidebarOpen }) {
   const [openNotif, setOpenNotif] = useState(false);
-  const label = tabs.find(t => t.id === activeTab)?.label || '';
+  const activeObj = tabs.find(t => t.id === activeTab);
+  const label = activeObj?.label || '';
+  const TabIcon = activeObj?.icon || LayoutDashboard;
+
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px',
-      borderBottom: '1px solid var(--border)', background: 'var(--surface)', backdropFilter: 'blur(12px)',
-      position: 'sticky', top: 0, zIndex: 30,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px',
+      borderBottom: '1px solid var(--border)', background: 'var(--surface)', backdropFilter: 'blur(16px)',
+      position: 'sticky', top: 0, zIndex: 40,
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button className="btn btn-sm mobile-menu-btn" onClick={() => setSidebarOpen(s => !s)} style={{ padding: '6px 8px' }}>
-          <Menu size={16} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <button className="btn btn-sm mobile-menu-btn" onClick={() => setSidebarOpen(s => !s)} style={{ padding: '6px 8px', borderRadius: 9 }}>
+          <Menu size={18} />
         </button>
-        <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em' }}>{label}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+          <span style={{
+            width: 32, height: 32, borderRadius: 10,
+            background: 'linear-gradient(135deg, var(--accent1), var(--accent2))',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 2px 10px var(--accent-glow)', flexShrink: 0
+          }}>
+            <TabIcon size={17} color="#fff" />
+          </span>
+          <div>
+            <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', lineHeight: 1.15 }}>{label}</div>
+            <div className="topbar-subtext" style={{ fontSize: 10, color: 'var(--text-dim)', fontWeight: 600 }}>MoonVolt VDMS</div>
+          </div>
+        </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
-        <button className="btn btn-sm" onClick={() => setOpenNotif(o => !o)} style={{ position: 'relative', padding: '6px 10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
+        <button className="btn btn-sm" onClick={() => setOpenNotif(o => !o)} style={{ position: 'relative', padding: '7px 10px', borderRadius: 9 }}>
           <Bell size={15} />
           {notifications.length > 0 && (
-            <span style={{ position: 'absolute', top: -4, right: -4, background: 'var(--danger)', color: '#fff', borderRadius: 10, fontSize: 9, padding: '2px 5px', fontWeight: 800 }}>{notifications.length}</span>
+            <span style={{ position: 'absolute', top: -3, right: -3, background: 'var(--danger)', color: '#fff', borderRadius: 10, fontSize: 9, padding: '2px 5px', fontWeight: 800, boxShadow: '0 0 8px rgba(239,68,68,0.6)' }}>{notifications.length}</span>
           )}
         </button>
         {openNotif && (
-          <div className="card" style={{ position: 'absolute', top: 42, right: 0, width: 320, maxHeight: 380, overflowY: 'auto', zIndex: 60, padding: 12, boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+          <div className="card notif-dropdown" style={{
+            position: 'absolute', top: 44, right: 0, width: 320, maxHeight: 380, overflowY: 'auto', zIndex: 60, padding: 14,
+            boxShadow: '0 16px 40px rgba(0,0,0,0.4)', borderRadius: 16, border: '1px solid var(--border)'
+          }}>
             <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span>Notifications</span>
               <span className="badge" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}>{notifications.length}</span>
             </div>
             {notifications.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '10px 0' }}>You're all caught up.</div>}
             {notifications.map((n, i) => (
-              <div key={i} style={{ display: 'flex', gap: 8, padding: '8px 0', borderBottom: i < notifications.length - 1 ? '1px solid var(--border)' : 'none' }}>
+              <div key={i} style={{ display: 'flex', gap: 8, padding: '8px 0', borderBottom: i < notifications.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
                 <AlertTriangle size={14} color={n.type === 'danger' ? 'var(--danger)' : n.type === 'warning' ? 'var(--warning)' : 'var(--info)'} style={{ flexShrink: 0, marginTop: 2 }} />
                 <span style={{ fontSize: 12, lineHeight: 1.5 }}>{n.text}</span>
               </div>
             ))}
           </div>
         )}
-        <button className="btn btn-sm" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} style={{ padding: '6px 10px' }}>
+        <button className="btn btn-sm" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} style={{ padding: '7px 10px', borderRadius: 9 }}>
           {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
         </button>
       </div>
