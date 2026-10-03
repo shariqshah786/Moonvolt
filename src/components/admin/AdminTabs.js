@@ -293,9 +293,14 @@ export function InventoryTab({ db, persist, addAudit, showToast }) {
 }
 
 export function EditVehicleModal({ vehicle, onClose, onSave }) {
-  const [motorNumber, setMotorNumber] = useState(vehicle.motorNumber);
-  const [batterySerial, setBatterySerial] = useState(vehicle.batterySerial);
-  const [chargerSerial, setChargerSerial] = useState(vehicle.chargerSerial);
+  const [category, setCategory] = useState(vehicle.category || 'Passenger');
+  const [model, setModel] = useState(vehicle.model || CATEGORIES.Passenger[0]);
+  const [chassisNumber, setChassisNumber] = useState(vehicle.chassisNumber || '');
+  const [motorNumber, setMotorNumber] = useState(vehicle.motorNumber || '');
+  const [batterySerial, setBatterySerial] = useState(vehicle.batterySerial || '');
+  const [chargerSerial, setChargerSerial] = useState(vehicle.chargerSerial || '');
+  const [manufacturingDate, setManufacturingDate] = useState(vehicle.manufacturingDate || todayStr());
+  const [purchaseDate, setPurchaseDate] = useState(vehicle.purchaseDate || todayStr());
   const [battery, setBattery] = useState(vehicle.batteryWarranty ? { ...vehicle.batteryWarranty } : null);
   const [charger, setCharger] = useState(vehicle.chargerWarranty ? { ...vehicle.chargerWarranty } : null);
   const [error, setError] = useState('');
@@ -307,22 +312,64 @@ export function EditVehicleModal({ vehicle, onClose, onSave }) {
   };
 
   const submit = () => {
-    if (!motorNumber || !batterySerial || !chargerSerial) { setError('Motor, battery, and charger numbers cannot be empty.'); return; }
-    onSave(vehicle.id, { motorNumber, batterySerial, chargerSerial, batteryWarranty: battery, chargerWarranty: charger });
+    if (!chassisNumber || !motorNumber || !batterySerial || !chargerSerial) {
+      setError('Chassis, motor, battery, and charger numbers cannot be empty.');
+      return;
+    }
+    onSave(vehicle.id, {
+      category,
+      model,
+      chassisNumber,
+      motorNumber,
+      batterySerial,
+      chargerSerial,
+      manufacturingDate,
+      purchaseDate,
+      batteryWarranty: battery,
+      chargerWarranty: charger,
+    });
   };
 
   return (
-    <Modal title={`Edit Vehicle — ${vehicle.id}`} onClose={onClose}>
+    <Modal title={`Edit / Update Vehicle — ${vehicle.id}`} onClose={onClose}>
       <div>
-        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Component Numbers</div>
-        <div className="grid-3">
+        <div className="grid-2">
+          <div>
+            <label>Vehicle Category</label>
+            <select
+              value={category}
+              onChange={e => {
+                setCategory(e.target.value);
+                setModel(CATEGORIES[e.target.value][0]);
+              }}
+            >
+              {Object.keys(CATEGORIES).map(c => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label>Vehicle Model</label>
+            <select value={model} onChange={e => setModel(e.target.value)}>
+              {(CATEGORIES[category] || []).map(m => <option key={m}>{m}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid-2" style={{ marginTop: 10 }}>
+          <div><label>Chassis Number</label><input value={chassisNumber} onChange={e => setChassisNumber(e.target.value)} /></div>
           <div><label>Motor Number</label><input value={motorNumber} onChange={e => setMotorNumber(e.target.value)} /></div>
+        </div>
+
+        <div className="grid-2" style={{ marginTop: 10 }}>
           <div><label>Battery Serial Number</label><input value={batterySerial} onChange={e => setBatterySerial(e.target.value)} /></div>
           <div><label>Charger Serial Number</label><input value={chargerSerial} onChange={e => setChargerSerial(e.target.value)} /></div>
         </div>
-        <div style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 6 }}>Use this if a battery or motor was swapped during service.</div>
 
-        <div style={{ fontWeight: 700, fontSize: 13, margin: '18px 0 8px' }}>Warranty</div>
+        <div className="grid-2" style={{ marginTop: 10 }}>
+          <div><label>Manufacturing Date</label><input type="date" value={manufacturingDate} onChange={e => setManufacturingDate(e.target.value)} /></div>
+          <div><label>Purchase Date</label><input type="date" value={purchaseDate} onChange={e => setPurchaseDate(e.target.value)} /></div>
+        </div>
+
+        <div style={{ fontWeight: 700, fontSize: 13, margin: '18px 0 8px' }}>Warranty Management</div>
         {!battery ? (
           <div className="btn" onClick={initWarranty}><ShieldCheck size={14} /> Initialize Warranty (24mo battery / 12mo charger)</div>
         ) : (
@@ -343,7 +390,7 @@ export function EditVehicleModal({ vehicle, onClose, onSave }) {
         {error && <div style={{ color: 'var(--danger)', fontSize: 12, marginTop: 10 }}>{error}</div>}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
           <div className="btn" onClick={onClose}>Cancel</div>
-          <div className="btn btn-primary" onClick={submit}>Save Changes</div>
+          <div className="btn btn-primary" onClick={submit}>Update Vehicle</div>
         </div>
       </div>
     </Modal>

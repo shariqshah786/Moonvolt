@@ -75,7 +75,7 @@ export function LoginScreen({ theme, setTheme, db, onLogin }) {
             <div>
               <div style={{ marginBottom: 12 }}>
                 <label>Username</label>
-                <input value={username} onChange={e => setUsername(e.target.value)}
+                <input value={username} onChange={e => setUsername(e.target.value)} style={{ width: '100%' }}
                   onKeyDown={e => { if (e.key === 'Enter') handleLogin(); }}
                   placeholder={role === 'admin' ? 'admin' : 'e.g. sunrise'} />
               </div>
@@ -96,7 +96,7 @@ export function LoginScreen({ theme, setTheme, db, onLogin }) {
               {error && <div style={{ color: 'var(--danger)', fontSize: 12, marginBottom: 12 }}>{error}</div>}
               <div className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: 11 }} onClick={handleLogin}>Sign in</div>
               <div style={{ marginTop: 14, fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.6, textAlign: 'center' }}>
-                Default Super Admin Login: <code style={{ fontFamily: 'var(--font-mono)' }}>admin / admin123</code>
+                {/* Default Super Admin Login: <code style={{ fontFamily: 'var(--font-mono)' }}>admin / admin123</code> */}
               </div>
             </div>
           ) : (

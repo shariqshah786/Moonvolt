@@ -16,6 +16,11 @@ export const metadata = {
   description: "Vehicle Distribution System CRM",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({ children }) {
   return (
     <html

@@ -56,13 +56,15 @@ export function Shell({ theme, setTheme, session, setSession, db, persist, addAu
   const notifications = useMemo(() => buildNotifications(db, session), [db, session]);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', width: '100%', overflowX: 'hidden' }}>
       {/* Sidebar */}
-      <div style={{
-        width: 248, flexShrink: 0, borderRight: '1px solid var(--border)', background: 'var(--surface)',
-        position: sidebarOpen ? 'fixed' : 'sticky', left: 0, top: 0, zIndex: 100, height: '100vh',
-        display: 'flex', flexDirection: 'column', transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-      }} className={sidebarOpen ? '' : 'hide-mobile-sidebar'}>
+      <div
+        className={`sidebar ${sidebarOpen ? '' : 'hide-mobile-sidebar'}`}
+        style={{
+          borderRight: '1px solid var(--border)',
+          background: 'var(--surface)',
+        }}
+      >
         <div style={{ padding: '18px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg, var(--accent1), var(--accent2))', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px var(--accent-glow)' }}>
@@ -112,10 +114,21 @@ export function Shell({ theme, setTheme, session, setSession, db, persist, addAu
         </div>
       </div>
 
-      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 90 }} />}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(3px)',
+            zIndex: 190,
+          }}
+        />
+      )}
 
       {/* Main */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, minWidth: 0, width: '100%', maxWidth: '100%', display: 'flex', flexDirection: 'column' }}>
         <TopBar
           theme={theme} setTheme={setTheme} session={session} tabs={tabs} activeTab={activeTab}
           notifications={notifications} setSidebarOpen={setSidebarOpen}
