@@ -1,6 +1,6 @@
 export const CATEGORIES = {
   Passenger: ['39', '42', '46', '48'],
-  Loader: ['Rajans', 'Rapid', 'MiniMeter'],
+  Loader: ['Rajans', 'Shobha', 'MiniMeter'],
 };
 export const ALL_MODELS = Object.entries(CATEGORIES).flatMap(([cat, models]) => models.map(m => ({ cat, model: m })));
 export const STATUSES = ['In Stock', 'Sent to Distributor', 'Sold', 'Warranty Expired'];

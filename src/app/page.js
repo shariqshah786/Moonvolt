@@ -17,6 +17,16 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isSavingRef = useRef(false);
 
+  // Migrate legacy model names (Rapid -> Shobha)
+  const migrateDb = (data) => {
+    if (data && Array.isArray(data.vehicles)) {
+      data.vehicles.forEach(v => {
+        if (v.model === 'Rapid') v.model = 'Shobha';
+      });
+    }
+    return data;
+  };
+
   // Load database from Real-Time MongoDB API endpoint
   const loadDbFromApi = useCallback(async (isInitial = false) => {
     try {
@@ -24,6 +34,7 @@ export default function App() {
       if (!res.ok) throw new Error('API fetch failed');
       const data = await res.json();
       if (data && !data.error) {
+        migrateDb(data);
         if (!isSavingRef.current) {
           setDb(data);
           try { localStorage.setItem('vdms_local_cache', JSON.stringify(data)); } catch (_) {}
@@ -42,7 +53,8 @@ export default function App() {
           const cached = localStorage.getItem('vdms_local_cache');
           if (cached) local = JSON.parse(cached);
         } catch (_) {}
-        setDb(local || seedDB());
+        const finalDb = migrateDb(local || seedDB());
+        setDb(finalDb);
         setTimeout(() => setLoading(false), 800);
       }
       return false;

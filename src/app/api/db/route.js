@@ -2,6 +2,17 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase, VdmsModel } from '@/lib/mongodb';
 import { seedDB } from '@/lib/seed';
 
+function migrateData(data) {
+  if (data && Array.isArray(data.vehicles)) {
+    data.vehicles.forEach(v => {
+      if (v.model === 'Rapid') {
+        v.model = 'Shobha';
+      }
+    });
+  }
+  return data;
+}
+
 export async function GET() {
   try {
     await connectToDatabase();
@@ -15,7 +26,23 @@ export async function GET() {
       });
       return NextResponse.json(seeded);
     }
-    return NextResponse.json(JSON.parse(doc.value));
+    const parsed = JSON.parse(doc.value);
+    let changed = false;
+    if (parsed && Array.isArray(parsed.vehicles)) {
+      parsed.vehicles.forEach(v => {
+        if (v.model === 'Rapid') {
+          v.model = 'Shobha';
+          changed = true;
+        }
+      });
+    }
+    if (changed) {
+      await VdmsModel.updateOne(
+        { key: 'vdms_db' },
+        { value: JSON.stringify(parsed) }
+      );
+    }
+    return NextResponse.json(parsed);
   } catch (error) {
     console.error('Failed to load DB from MongoDB:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -25,6 +52,7 @@ export async function GET() {
 export async function POST(request) {
   try {
     const data = await request.json();
+    migrateData(data);
     await connectToDatabase();
     await VdmsModel.updateOne(
       { key: 'vdms_db' },
